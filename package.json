@@ -12,6 +12,7 @@
     "vite": "^6.3.1"
   },
   "dependencies": {
+    "ngeohash": "^0.6.3",
     "ol": "^10.5.0"
   }
 }
