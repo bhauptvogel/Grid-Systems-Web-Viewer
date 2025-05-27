@@ -73,8 +73,10 @@ function logTile(coordinates) {
 }
 
 function resetSelected() { selected = []; }
+
 function selectTile(coordinates) {
-	selected.push(gridSystem.getID(coordinates));
+	const id = gridSystem.getID(coordinates);
+	if(!selected.includes(id)) selected.push(id);
 	renderSelected();
 }
 
