@@ -47,5 +47,11 @@ export class SlippyTilesGrid {
 	}
 	getPolygon(id) {
 		const [zoom, x, y] = id.split("/").map(Number);
+		const resolution = (2 * originShift) / Math.pow(2,zoom);
+		const minX = -originShift + x * resolution;
+		const maxX = -originShift + (x + 1) * resolution;
+		const maxY = originShift - y * resolution;
+		const minY = originShift - (y + 1) * resolution;
+		return cornersToRectanglePolygon(minX, maxX, minY, maxY);
 	}
 }

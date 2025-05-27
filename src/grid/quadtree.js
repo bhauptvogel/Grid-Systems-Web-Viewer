@@ -1,6 +1,8 @@
-import {SlippyTilesGrid} from "./grid/slippy.js";
+import {SlippyTilesGrid} from "./slippy.js";
+
+
 // Bing Maps
-class QuadTreeGrid extends SlippyTilesGrid {
+export class QuadTreeGrid extends SlippyTilesGrid {
 	getID(coordinates) {
 		const tile = this._getTile(coordinates);
 		const level = this._zoom(coordinates);
@@ -18,19 +20,15 @@ class QuadTreeGrid extends SlippyTilesGrid {
     }
     return quadKey;
 	}
+	getPolygon(id) {
+		const q = id;
+		let x = 0, y = 0;
+		for (const c of q) {                 // c is '0'‒'3'
+			const d = c - 0;                   // fast toNumber
+			x = (x << 1) |  (d & 1);           // bit-0 → X
+			y = (y << 1) | ((d >> 1) & 1);     // bit-1 → Y
+		}
+		return super.getPolygon(`${q.length}/${x}/${y}`);
+	}
 }
 
-function getCurrentExtentPolygon(extent) {
-  const bottomLeft = toLonLat([extent[0], extent[1]]);
-  const bottomRight = toLonLat([extent[2], extent[1]]);
-  const topRight = toLonLat([extent[2], extent[3]]);
-  const topLeft = toLonLat([extent[0], extent[3]]);
-
-  return [[
-    [bottomLeft[0], bottomLeft[1]],
-    [bottomRight[0], bottomRight[1]],
-    [topRight[0], topRight[1]],
-    [topLeft[0], topLeft[1]],
-    [bottomLeft[0], bottomLeft[1]] 
-  ]];
-}

@@ -1,3 +1,5 @@
+import {toLonLat, fromLonLat} from 'ol/proj.js';
+
 import geohash from 'ngeohash';
 const base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 
@@ -78,5 +80,15 @@ export class GeohashGrid {
 	}
 	getID(coordinates) {
 		return geohash.encode(toLonLat(coordinates)[1], toLonLat(coordinates)[0], this._precision());
+	}
+	getPolygon(id) {
+		const bbox = geohash.decode_bbox(id);
+		return [[
+			fromLonLat([bbox[1], bbox[0]]), // bottom-left
+			fromLonLat([bbox[3], bbox[0]]), // top-left
+			fromLonLat([bbox[3], bbox[2]]), // top-right
+			fromLonLat([bbox[1], bbox[2]]), // bottom-right
+			fromLonLat([bbox[1], bbox[0]]), // close the loop
+		]];
 	}
 }

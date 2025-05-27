@@ -6,11 +6,13 @@ import VectorLayer from 'ol/layer/Vector.js';
 import OSM from 'ol/source/OSM.js';
 import Polygon from 'ol/geom/Polygon.js';
 import Feature from 'ol/Feature.js'
-import {toLonLat, fromLonLat} from 'ol/proj.js';
 import VectorSource from 'ol/source/Vector.js';
-import {Circle, Fill, Stroke, Style} from 'ol/style.js';
+import {Fill, Stroke, Style} from 'ol/style.js';
+
 import {SlippyTilesGrid} from "./grid/slippy.js";
 import {GeohashGrid} from "./grid/geohash.js";
+import {UberH3Grid} from "./grid/h3.js";
+import {QuadTreeGrid} from "./grid/quadtree.js";
 
 const tileStyle = new Style({
   stroke: new Stroke({
@@ -28,7 +30,6 @@ const selectedStyle = new Style({
     width: 2,
   }),
 });
-
 
 const gridSource = new VectorSource();
 const selectedSource = new VectorSource();
@@ -56,7 +57,7 @@ const map = new Map({
 });
 
 // TODO: make state system
-var gridSystem = new SlippyTilesGrid(map);
+var gridSystem = new UberH3Grid(map);
 var selected = [];
 
 function drawGrid() {
@@ -67,7 +68,7 @@ function drawGrid() {
 	gridSource.addFeatures(features);
 }
 
-function logCoordinates(coordinates) {
+function logTile(coordinates) {
 	console.log(gridSystem.getID(coordinates));
 }
 
@@ -76,6 +77,7 @@ function selectTile(coordinates) {
 	selected.push(gridSystem.getID(coordinates));
 	renderSelected();
 }
+
 function renderSelected() {
 	selectedSource.clear();
 	const polygons = selected.map(tile => gridSystem.getPolygon(tile));
@@ -96,7 +98,7 @@ map.on('moveend', () => {
 });
 
 map.on('pointermove', function (event) {
-	logCoordinates(event.coordinate);
+	logTile(event.coordinate);
 });
 
 map.on('click', (event) => {

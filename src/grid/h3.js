@@ -1,6 +1,24 @@
 import {latLngToCell, polygonToCells, cellToBoundary} from "h3-js";
+import {toLonLat,fromLonLat} from 'ol/proj';
+
+// TODO: add to helpers
+function getCurrentExtentPolygon(extent) {
+  const bottomLeft = toLonLat([extent[0], extent[1]]);
+  const bottomRight = toLonLat([extent[2], extent[1]]);
+  const topRight = toLonLat([extent[2], extent[3]]);
+  const topLeft = toLonLat([extent[0], extent[3]]);
+
+  return [[
+    [bottomLeft[0], bottomLeft[1]],
+    [bottomRight[0], bottomRight[1]],
+    [topRight[0], topRight[1]],
+    [topLeft[0], topLeft[1]],
+    [bottomLeft[0], bottomLeft[1]] 
+  ]];
+}
+
 // use h3-js
-class UberH3Grid {
+export class UberH3Grid {
 	constructor(map) { this.map = map };
 	_resolution() {
 		const z = Math.floor(this.map.getView().getZoom());
