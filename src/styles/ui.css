@@ -1,41 +1,76 @@
-/* === layout of the floating panel === */
-#ui-root.ui-panel {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1000;                 /* above OpenLayers layers */
-  display: flex;
-  gap: .75rem;
-  align-items: center;
-
-  padding: .75rem 1rem;
-  background: rgba(255, 255, 255, .9);
-  border-radius: .5rem;
-  box-shadow: 0 0 .5rem rgba(0, 0, 0, .25);
-  font-family: system-ui, sans-serif;
-  font-size: .9rem;
+/* generic floating panel style */
+.ui-panel{
+  position:absolute;                 /* let each panel place itself */
+  z-index:1000;
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  padding:.75rem 1rem;
+  background:rgba(255,255,255,.9);
+  border-radius:.5rem;
+  box-shadow:0 0 .5rem rgba(0,0,0,.25);
+  font-family:system-ui,sans-serif;
+  font-size:1.2rem;
 }
 
-/* === individual fields === */
-.ui-field {
-  display: flex;
-  align-items: center;
-  gap: .25rem;
+/* where they live */
+#panel-grid { top:1rem; right:1rem; }
+
+#panel-hover{
+  top:1rem;
+  left:50%;
+  transform:translateX(-50%);        /* true horizontal centring */
+	justify-content:center;
 }
 
-.ui-label {
-  font-weight: 600;
-  white-space: nowrap;
+#panel-list {
+	bottom:1rem;
+	left:1rem;
+  flex-direction:column;          /* label/textarea (row) + tip (row) stacked */
+  align-items:flex-start;         /* keep everything left-aligned */
+  gap:.3rem;        
 }
 
-.ui-field input {
-  min-width: 10rem;
-  padding: .25rem .4rem;
+.ui-field select,
+.ui-field input,
+.ui-field textarea{
+  font-size:1.2rem;                       /* match panel’s base size */
+  padding:.25rem .4rem;
 }
 
-.ui-hover {
-  font-style: italic;
-  min-width: 8rem;
-  text-align: right;
+/* field-level cosmetics (unchanged) */
+.ui-field{ display:flex; align-items:center; gap:.75rem; }
+.ui-label{ font-weight:600; white-space:nowrap; }
+.ui-field input{ min-width:10rem; padding:.25rem .4rem; }
+.ui-hover{ font-style:italic; min-width:8rem; text-align:center; }
+.ui-tip{
+  margin-top:.5rem;
+  font-size:.7em;
+  font-style:italic;
+  opacity:.75;
+	padding-bottom:.6rem;
+}
+
+.ui-buttons{
+  display:flex;
+  gap:.75rem;
+}
+
+/* optional: consistent look & feel */
+.ui-buttons button{
+  padding:.4rem .9rem;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+
+.ui-field textarea{
+  min-width:24rem;
+  height:auto;
+  max-height:8rem;            /* 8 × root-em ≈ 128 px */
+  line-height:1.2;
+  overflow-y:hidden;          /* JS flips to auto when max reached */
+  resize:none;                /* user can’t override height */
+  white-space:pre-wrap;       /* wrap long tokens */
 }
 

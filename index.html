@@ -7,29 +7,40 @@
   </head>
   <body>
     <div id="map" style="width: 100vw; height: 100vh;"></div>
-		<!-- overlay panel -->
-		<div id="ui-root" class="ui-panel">
-			<!-- ❶ grid-system selector -->
+		<!-- ─── GRID SELECTOR ─── -->
+		<div id="panel-grid" class="ui-panel">
 			<label class="ui-field">
-				<span class="ui-label">Grid:</span>
 				<select id="gridSelect">
-					<option value="slippy">Slippy</option>
-					<option value="quadtree">QuadTree</option>
+					<option value="slippy">Slippy Tiles</option>
 					<option value="geohash">Geohash</option>
 					<option value="h3">Uber H3</option>
+					<option value="quadtree">Quadtree</option>
 				</select>
 			</label>
+		</div>
 
-			<!-- ❷ free-text input for a list of cells -->
-			<label class="ui-field">
-				<span class="ui-label">Selection:</span>
-				<input id="cellInput" type="text"
-							 placeholder="cell1,cell2,cell3" spellcheck="false" />
-			</label>
-
-			<!-- ❸ read-only hover label -->
+		<!-- ─── HOVER LABEL ─── -->
+		<div id="panel-hover" class="ui-panel">
 			<span id="hoverLabel" class="ui-hover">Hover a cell</span>
 		</div>
+
+		<!-- ─── SELECTED LIST INPUT ─── -->
+		<div id="panel-list" class="ui-panel">
+			<label class="ui-field">
+				<span class="ui-label">Selection:</span>
+				<textarea rows="1" id="cellInput" placeholder="cell1,cell2,…" spellcheck="false"></textarea>
+			</label>
+			<div id="multiTip" class="ui-tip">
+				Tip: hold <kbd>Ctrl</kbd> and click to select multiple tiles
+			</div>
+			
+			<!-- ─── BUTTON ROW ─── -->
+			<div class="ui-buttons">
+				<button id="btnLoad">Load from file</button>
+				<button id="btnExport">Export</button>
+			</div>
+		</div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
