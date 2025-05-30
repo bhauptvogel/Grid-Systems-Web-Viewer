@@ -3,9 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <title>Grid Systems</title>
+		<link rel="stylesheet" href="./src/styles/ui.css" />
   </head>
   <body>
     <div id="map" style="width: 100vw; height: 100vh;"></div>
+		<!-- overlay panel -->
+		<div id="ui-root" class="ui-panel">
+			<!-- ❶ grid-system selector -->
+			<label class="ui-field">
+				<span class="ui-label">Grid:</span>
+				<select id="gridSelect">
+					<option value="slippy">Slippy</option>
+					<option value="quadtree">QuadTree</option>
+					<option value="geohash">Geohash</option>
+					<option value="h3">Uber H3</option>
+				</select>
+			</label>
+
+			<!-- ❷ free-text input for a list of cells -->
+			<label class="ui-field">
+				<span class="ui-label">Selection:</span>
+				<input id="cellInput" type="text"
+							 placeholder="cell1,cell2,cell3" spellcheck="false" />
+			</label>
+
+			<!-- ❸ read-only hover label -->
+			<span id="hoverLabel" class="ui-hover">Hover a cell</span>
+		</div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

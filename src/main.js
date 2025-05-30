@@ -1,6 +1,7 @@
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
+import { defaults as defaultInteractions } from 'ol/interaction';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector.js';
 import OSM from 'ol/source/OSM.js';
@@ -8,11 +9,24 @@ import Polygon from 'ol/geom/Polygon.js';
 import Feature from 'ol/Feature.js'
 import VectorSource from 'ol/source/Vector.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
+import './ui/gridSelector.js';
+import './ui/selectedCellsInput.js';
+import './ui/cellIdLabel.js';
+
+import { getState, subscribe, setState } from './state/store.js';
 
 import {SlippyTilesGrid} from "./grid/slippy.js";
 import {GeohashGrid} from "./grid/geohash.js";
 import {UberH3Grid} from "./grid/h3.js";
 import {QuadTreeGrid} from "./grid/quadtree.js";
+
+const mapGridSystem = (gridSystemString) => {
+	if(gridSystemString == 'slippy') return new SlippyTilesGrid(map);
+	else if(gridSystemString == 'h3') return new UberH3Grid(map);
+	else if(gridSystemString == 'geohash') return new GeohashGrid(map);
+	else if(gridSystemString == 'quadtree') return new QuadTreeGrid(map);
+	else throw new Error("Not a valid grid selected!");
+};
 
 const tileStyle = new Style({
   stroke: new Stroke({
@@ -53,12 +67,18 @@ const map = new Map({
 			source: selectedSource,
 		}),
   ],
+	interactions: defaultInteractions({ doubleClickZoom: false }),
 	view: view,
 });
 
 // TODO: make state system
-var gridSystem = new UberH3Grid(map);
-var selected = [];
+const { activeGridSystem } = getState();
+var gridSystem = mapGridSystem(activeGridSystem);
+
+subscribe(({ activeGridSystem }) => {
+	gridSystem = mapGridSystem(activeGridSystem);
+	drawGrid();
+});
 
 function drawGrid() {
 	gridSource.clear();
@@ -72,17 +92,25 @@ function logTile(coordinates) {
 	console.log(gridSystem.getID(coordinates));
 }
 
-function resetSelected() { selected = []; }
+function resetSelected() { setState({ selectedCells: [] }); }
 
 function selectTile(coordinates) {
 	const id = gridSystem.getID(coordinates);
-	if(!selected.includes(id)) selected.push(id);
+	const { selectedCells } = getState();
+	if(!selectedCells.includes(id)) {
+		setState({ selectedCells: [...selectedCells, id], });
+	}
 	renderSelected();
 }
 
+subscribe(({ selectedCells }) => {
+	renderSelected();
+});
+
 function renderSelected() {
 	selectedSource.clear();
-	const polygons = selected.map(tile => gridSystem.getPolygon(tile));
+	const { selectedCells } = getState();
+	const polygons = selectedCells.map(tile => gridSystem.getPolygon(tile));
 	const features = polygons.map(polygon => new Feature(new Polygon(polygon)));
 	features.forEach(feature => feature.setStyle(selectedStyle));
 	selectedSource.addFeatures(features);
@@ -99,8 +127,13 @@ map.on('moveend', () => {
 	drawGrid();
 });
 
+let last = null;
 map.on('pointermove', function (event) {
-	logTile(event.coordinate);
+	const cell = gridSystem.getID(event.coordinate);
+	if (cell !== last) {
+		last = cell;
+		setState({ hoveredCell: cell});
+	}
 });
 
 map.on('click', (event) => {
