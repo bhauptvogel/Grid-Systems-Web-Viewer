@@ -9,6 +9,8 @@ import Polygon from 'ol/geom/Polygon.js';
 import Feature from 'ol/Feature.js'
 import VectorSource from 'ol/source/Vector.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
+import {toLonLat, fromLonLat} from 'ol/proj.js';
+import {getWidth as getExtentWidth} from 'ol/extent.js';
 import './ui/gridSelector.js';
 import './ui/selectedCellsInput.js';
 import './ui/cellIdLabel.js';
@@ -45,13 +47,14 @@ const selectedStyle = new Style({
   }),
 });
 
-const gridSource = new VectorSource();
-const selectedSource = new VectorSource();
+const gridSource = new VectorSource({wrapX: true});
+const selectedSource = new VectorSource({wrapX: true});
 
 const view = new View({
     center: [0,0],
     zoom: 2,
 		projection: 'EPSG:3857',
+		multiWorld: false
 });
 
 const map = new Map({
@@ -71,7 +74,6 @@ const map = new Map({
 	view: view,
 });
 
-// TODO: make state system
 const { activeGridSystem } = getState();
 var gridSystem = mapGridSystem(activeGridSystem);
 
@@ -82,20 +84,33 @@ subscribe(({ activeGridSystem }) => {
 
 function drawGrid() {
 	gridSource.clear();
-	const polygons = gridSystem.gridPolygons();
+	
+	const polygons = [];
+	const viewExtent = map.getView().calculateExtent(map.getSize());
+
+	const [minLon, minLat] = toLonLat([viewExtent[0],viewExtent[1]]);
+	const [maxLon, maxLat] = toLonLat([viewExtent[2],viewExtent[3]]);
+
+	const addPolygons = (minLa, minLo, maxLa, maxLo) => {
+		gridSystem.bboxes(minLa, minLo, maxLa, maxLo).forEach(h => polygons.push(gridSystem.decode(h)));
+	}
+
+	if(minLon >= maxLon || getExtentWidth(viewExtent) >= getExtentWidth(map.getView().getProjection().getExtent())) {
+		addPolygons(minLat, minLon, maxLat, 180);
+		addPolygons(minLat, -180, maxLat, maxLon);
+	} else {
+		addPolygons(minLat, minLon, maxLat, maxLon);
+	}
+
 	const features = polygons.map(polygon => new Feature(new Polygon(polygon)));
 	features.forEach(feature => feature.setStyle(tileStyle));
 	gridSource.addFeatures(features);
 }
 
-function logTile(coordinates) {
-	console.log(gridSystem.getID(coordinates));
-}
-
 function resetSelected() { setState({ selectedCells: [] }); }
 
-function selectTile(coordinates) {
-	const id = gridSystem.getID(coordinates);
+function selectTile(lon, lat) {
+	const id = gridSystem.encode(lat, lon);
 	const { selectedCells } = getState();
 	if(!selectedCells.includes(id)) {
 		setState({ selectedCells: [...selectedCells, id], });
@@ -110,7 +125,7 @@ subscribe(({ selectedCells }) => {
 function renderSelected() {
 	selectedSource.clear();
 	const { selectedCells } = getState();
-	const polygons = selectedCells.map(tile => gridSystem.getPolygon(tile));
+	const polygons = selectedCells.map(tile => gridSystem.decode(tile));
 	const features = polygons.map(polygon => new Feature(new Polygon(polygon)));
 	features.forEach(feature => feature.setStyle(selectedStyle));
 	selectedSource.addFeatures(features);
@@ -129,7 +144,8 @@ map.on('moveend', () => {
 
 let last = null;
 map.on('pointermove', function (event) {
-	const cell = gridSystem.getID(event.coordinate);
+	const [lon, lat] = toLonLat(event.coordinate);
+	const cell = gridSystem.encode(lat, lon);
 	if (cell !== last) {
 		last = cell;
 		setState({ hoveredCell: cell});
@@ -138,5 +154,6 @@ map.on('pointermove', function (event) {
 
 map.on('click', (event) => {
 	if(event.originalEvent.ctrlKey == false) resetSelected();
-	selectTile(event.coordinate);
+	const [lon, lat] = toLonLat(event.coordinate);
+	selectTile(lon, lat);
 });
