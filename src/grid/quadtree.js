@@ -1,8 +1,8 @@
 import {SlippyTilesGrid} from "./slippy.js";
 
-
 // Bing Maps
 export class QuadTreeGrid extends SlippyTilesGrid {
+	// WARNING: function AI-generated
 	getID(coordinates) {
 		const tile = this._getTile(coordinates);
 		const level = this._zoom(coordinates);
@@ -20,6 +20,7 @@ export class QuadTreeGrid extends SlippyTilesGrid {
     }
     return quadKey;
 	}
+	// WARNING: function AI-generated
 	getPolygon(id) {
 		const q = id;
 		let x = 0, y = 0;
