@@ -1,4 +1,5 @@
 import {toLonLat, fromLonLat} from 'ol/proj.js';
+import {polygonToGeohashCells} from './utils/geohash-poly.js';
 
 import geohash from 'ngeohash';
 
@@ -13,8 +14,8 @@ export class GeohashGrid {
 		const sizes = [5009400, 626000, 78000, 19500, 2440, 610, 76, 19, 2.4]; 
 		return sizes.findIndex(s => s < desired) + 1 || 9;
 	}
-	bboxes(minLat, minLon, maxLat, maxLon) {
-		return geohash.bboxes(minLat, minLon, maxLat, maxLon, this.precision());
+	polygonToCells(polygon) {
+		return polygonToGeohashCells([polygon], this.precision()); 
 	}
 	encode(lat, lon) {
 		return geohash.encode(lat, lon, this.precision());

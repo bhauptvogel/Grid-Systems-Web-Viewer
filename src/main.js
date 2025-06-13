@@ -52,7 +52,7 @@ const selectedSource = new VectorSource({wrapX: true});
 
 const view = new View({
     center: [0,0],
-    zoom: 2,
+    zoom: 4,
 		projection: 'EPSG:3857',
 		multiWorld: false
 });
@@ -84,20 +84,31 @@ subscribe(({ activeGridSystem }) => {
 
 function drawGrid() {
 	gridSource.clear();
-	
+
 	const polygons = [];
 	const viewExtent = map.getView().calculateExtent(map.getSize());
 
 	const [minLon, minLat] = toLonLat([viewExtent[0],viewExtent[1]]);
 	const [maxLon, maxLat] = toLonLat([viewExtent[2],viewExtent[3]]);
 
-	const addPolygons = (minLa, minLo, maxLa, maxLo) => {
-		gridSystem.bboxes(minLa, minLo, maxLa, maxLo).forEach(h => polygons.push(gridSystem.decode(h)));
+	const addPolygons = (minLat, minLon, maxLat, maxLon) => {
+		const extentPolygon = [
+			[minLon, minLat],
+			[maxLon, minLat],
+			[maxLon, maxLat],
+			[minLon, maxLat],
+			[minLon, minLat],
+		];
+		gridSystem.polygonToCells(extentPolygon).forEach(h => polygons.push(gridSystem.decode(h)));
 	}
 
-	if(minLon >= maxLon || getExtentWidth(viewExtent) >= getExtentWidth(map.getView().getProjection().getExtent())) {
-		addPolygons(minLat, minLon, maxLat, 180);
-		addPolygons(minLat, -180, maxLat, maxLon);
+	const EPS = 1e-9;
+	if(Math.abs(minLon - maxLon) < EPS) {
+		addPolygons(minLat, 0, maxLat, 180-EPS);
+		addPolygons(minLat, -180+EPS, maxLat, 0);
+	} else if(minLon >= maxLon) {
+		addPolygons(minLat, minLon, maxLat, 180-EPS);
+		addPolygons(minLat, -180+EPS, maxLat, maxLon);
 	} else {
 		addPolygons(minLat, minLon, maxLat, maxLon);
 	}

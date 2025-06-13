@@ -1,5 +1,5 @@
 const state = {
-	activeGridSystem: 'slippy', // options: slippy, h3, quadtree, geohash
+	activeGridSystem: 'h3', // options: slippy, h3, quadtree, geohash
 	selectedCells: [],
 	hoveredCell: '',
 }

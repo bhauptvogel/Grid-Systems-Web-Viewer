@@ -1,3 +1,4 @@
+import cover from '@mapbox/tile-cover';
 
 // helper
 function cornersToRectanglePolygon(minX, maxX, minY, maxY) { return [[[minX, minY],[minX,maxY],[maxX,maxY],[maxX,minY],[minX,minY]]] }
@@ -10,17 +11,11 @@ export class SlippyTilesGrid {
 	precision() {
 		return Math.max(3, Math.floor(this.map.getView().getZoom()+0.5));
 	}
-	bboxes(minLat, minLon, maxLat, maxLon) {
-		// TODO: render all tiles when precision <= 3
-		const polygons = [];
-		const swCoords = this.encode(minLat, minLon).split("/").map(Number);
-		const neCoords = this.encode(maxLat, maxLon).split("/").map(Number);
-		for (let x = swCoords[1]; x < neCoords[1]+1; x++) {
-			for (let y = neCoords[2]; y < swCoords[2]+1; y++) {
-				polygons.push(`${this.precision()}/${x}/${y}`);
-			}
-		}
-		return polygons;
+	polygonToCells(polygon) {
+		const geo = { type: 'Polygon', coordinates: [polygon] };
+		const zoom = this.precision();
+		const cells = cover.tiles(geo, { min_zoom: zoom, max_zoom: zoom });
+		return cells.map(cell => `${cell[2]}/${cell[0]}/${cell[1]}`);
 	}
 	encode(lat, lon) {
 		// WARNING: GPT-generated

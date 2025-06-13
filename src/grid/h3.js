@@ -1,5 +1,6 @@
 import {getRes0Cells, latLngToCell, polygonToCells, cellToBoundary} from "h3-js";
 import {toLonLat,fromLonLat} from 'ol/proj';
+import {isWiderThan180, splitWidePolygon} from './utils/antimeridian-split.js';
 
 export class UberH3Grid {
 	constructor(map) { this.map = map };
@@ -9,16 +10,12 @@ export class UberH3Grid {
 		if (z >= 23) return 15;
 		return Math.floor((z - 2) * 0.75);
 	}
-	bboxes(minLat, minLon, maxLat, maxLon) {
-		if(this.precision() === 0) return getRes0Cells();
-		const extentPolygon = [
-			[minLon, minLat],
-			[maxLon, minLat],
-			[maxLon, maxLat],
-			[minLon, maxLat],
-			[minLon, minLat],
-		];
-		return polygonToCells([extentPolygon], this.precision(), true);
+	polygonToCells(polygon) {
+		if(!isWiderThan180(polygon)) return polygonToCells(polygon, this.precision(), true);
+		else {
+			const rings = splitWidePolygon(polygon);
+			return polygonToCells(rings[0], this.precision(), true).concat(polygonToCells(rings[1], this.precision(), true)); 
+		}
 	}
 	encode(lat, lon) {
 		return latLngToCell(lat, lon, this.precision());
