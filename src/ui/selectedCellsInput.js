@@ -62,3 +62,53 @@ subscribe(state => {
   }
 });
 
+
+/* ====================================================
+ *  Copy-to-Clipboard button
+ * ==================================================== */
+const btnCopy = document.getElementById('btnCopy');
+
+if (btnCopy) {
+  // Capture initial width so the button won’t “jump” when the label changes.
+  const fixedWidth = btnCopy.offsetWidth + 'px';
+  const originalLabel = btnCopy.textContent;
+
+  btnCopy.addEventListener('click', () => {
+    const text = input.value.trim();
+    if (!text) return;                   // nothing to copy
+
+    const showCopied = () => {
+      btnCopy.style.width = fixedWidth;  // lock width
+      btnCopy.style.color = 'green';
+      btnCopy.textContent = 'Copied!';
+      // Optional: reset after 2 s to allow repeated use
+      setTimeout(() => {
+        btnCopy.style.color = '';
+        btnCopy.textContent = originalLabel;
+        btnCopy.style.width = '';        // unlock width again
+      }, 2000);
+    };
+
+    // Modern API first …
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(() => {
+        // fall back if writeText rejected (e.g. permission)
+        legacyCopy();
+      });
+    } else {
+      legacyCopy();
+    }
+
+    function legacyCopy() {
+      // Fallback for non-secure context / older browsers
+      const sel = document.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(input);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try { document.execCommand('copy'); } catch (_) { /* ignore */ }
+      sel.removeAllRanges();
+      showCopied();
+    }
+  });
+}
