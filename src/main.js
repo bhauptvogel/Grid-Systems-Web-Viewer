@@ -9,7 +9,7 @@ import Polygon from 'ol/geom/Polygon.js';
 import Feature from 'ol/Feature.js'
 import VectorSource from 'ol/source/Vector.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
-import {toLonLat, fromLonLat} from 'ol/proj.js';
+import {toLonLat, fromLonLat, transformExtent} from 'ol/proj.js';
 import {getWidth as getExtentWidth} from 'ol/extent.js';
 import './ui/gridSelector.js';
 import './ui/selectedCellsInput.js';
@@ -82,41 +82,66 @@ subscribe(({ activeGridSystem }) => {
 	drawGrid();
 });
 
-function drawGrid() {
-	gridSource.clear();
 
-	const polygons = [];
-	const viewExtent = map.getView().calculateExtent(map.getSize());
-
-	const [minLon, minLat] = toLonLat([viewExtent[0],viewExtent[1]]);
-	const [maxLon, maxLat] = toLonLat([viewExtent[2],viewExtent[3]]);
-
-	const addPolygons = (minLat, minLon, maxLat, maxLon) => {
-		const extentPolygon = [
-			[minLon, minLat],
-			[maxLon, minLat],
-			[maxLon, maxLat],
-			[minLon, maxLat],
-			[minLon, minLat],
-		];
-		gridSystem.polygonToCells(extentPolygon).forEach(h => polygons.push(gridSystem.decode(h)));
+const EPS = 1e-9;
+// Split a [minLon, maxLon] range into one or two non-wrapping ranges.
+// Returns an array of [lonMin, lonMax] tuples, always with lonMin < lonMax.
+function splitByAntimeridian(minLon, maxLon) {
+  const width = maxLon - minLon;
+  if (Math.abs(width) < EPS) {
+		// 1. Viewport spans ~360°, treat as whole world split in half.
+    return [[-180+EPS, 0], [0, 180-EPS]];
+  } else if (width > 0) {
+		// 2. Normal case, no crossing.
+    return [[minLon, maxLon]];
+  } else {
+		// 3. Crosses the ±180° meridian → two ranges.
+		return [[minLon, 180-EPS], [-180+EPS, maxLon]];
 	}
-
-	const EPS = 1e-9;
-	if(Math.abs(minLon - maxLon) < EPS) {
-		addPolygons(minLat, 0, maxLat, 180-EPS);
-		addPolygons(minLat, -180+EPS, maxLat, 0);
-	} else if(minLon >= maxLon) {
-		addPolygons(minLat, minLon, maxLat, 180-EPS);
-		addPolygons(minLat, -180+EPS, maxLat, maxLon);
-	} else {
-		addPolygons(minLat, minLon, maxLat, maxLon);
-	}
-
-	const features = polygons.map(polygon => new Feature(new Polygon(polygon)));
-	features.forEach(feature => feature.setStyle(tileStyle));
-	gridSource.addFeatures(features);
 }
+
+// TODO: to utils / helper file
+function ring([lon1, lat1, lon2, lat2]) {
+  return [
+    [lon1, lat1],
+    [lon2, lat1],
+    [lon2, lat2],
+    [lon1, lat2],
+    [lon1, lat1],
+  ];
+}
+
+const GROW_FACTOR = 0.3;
+function grow(minCoord, maxCoord, limit, growFactor) {
+	const span = maxCoord - minCoord;
+	const delta = span * growFactor * 0.5;
+	const clamp = (x, min, max) => Math.min(Math.max(x, min), max);
+	return [ clamp(minCoord - delta, -limit, limit), clamp(maxCoord + delta, -limit, limit) ];
+}
+const growLat = (minLat, maxLat) => grow(minLat, maxLat, 85.051129 - EPS, GROW_FACTOR);
+const growLon = ([minLon, maxLon]) => [grow(minLon, maxLon, 180-EPS, GROW_FACTOR)];
+
+function drawGrid() {
+  gridSource.clear();
+
+	const viewExtent = map.getView().calculateExtent(map.getSize());
+	const [minLon0, minLat0] = toLonLat([viewExtent[0],viewExtent[1]]);
+	const [maxLon0, maxLat0] = toLonLat([viewExtent[2],viewExtent[3]]);
+
+	// Grow viewport to include tiles slighty out of view
+	const [minLat, maxLat] = growLat(minLat0, maxLat0);
+  const lonSlices = splitByAntimeridian(minLon0, maxLon0).flatMap(growLon);
+
+  const features = lonSlices.flatMap(([lonMin, lonMax]) =>
+    gridSystem
+     .polygonToCells(ring([lonMin, minLat, lonMax, maxLat]))
+     .map(h => new Feature(new Polygon(gridSystem.decode(h))))
+  );
+
+  features.forEach(f => f.setStyle(tileStyle));
+  gridSource.addFeatures(features);
+}
+
 
 function resetSelected() { setState({ selectedCells: [] }); }
 

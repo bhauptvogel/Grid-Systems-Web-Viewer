@@ -10,6 +10,7 @@ function slippyToQuadKey(z,x,y) {
 			if (y & mask) digit += 2;      //   +2 if the y-bit is set
 			quadKey += digit;              // digit is 0,1,2,3
 		}
+		if(quadKey.length === 0) console.log(z,x,y);
 		return quadKey;
 }
 

@@ -15,7 +15,7 @@ export class SlippyTilesGrid {
 		const geo = { type: 'Polygon', coordinates: [polygon] };
 		const zoom = this.precision();
 		const cells = cover.tiles(geo, { min_zoom: zoom, max_zoom: zoom });
-		return cells.map(cell => `${cell[2]}/${cell[0]}/${cell[1]}`);
+		return cells.filter(cell => cell[2]===zoom).map(cell => `${cell[2]}/${cell[0]}/${cell[1]}`);
 	}
 	encode(lat, lon) {
 		// WARNING: GPT-generated
