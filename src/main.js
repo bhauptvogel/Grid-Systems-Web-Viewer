@@ -52,7 +52,8 @@ const selectedSource = new VectorSource({wrapX: true});
 
 const view = new View({
     center: [0,0],
-    zoom: 4,
+    zoom: 5,
+		center: [1288648, 6129703],
 		projection: 'EPSG:3857',
 		multiWorld: false
 });
