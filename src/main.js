@@ -9,6 +9,7 @@ import Polygon from 'ol/geom/Polygon.js';
 import Feature from 'ol/Feature.js'
 import VectorSource from 'ol/source/Vector.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
+import { initUrlSync } from './queryParams.js';
 import {toLonLat, fromLonLat, transformExtent} from 'ol/proj.js';
 import {getWidth as getExtentWidth} from 'ol/extent.js';
 import './ui/gridSelector.js';
@@ -21,6 +22,8 @@ import {SlippyTilesGrid} from "./grid/slippy.js";
 import {GeohashGrid} from "./grid/geohash.js";
 import {UberH3Grid} from "./grid/h3.js";
 import {QuadTreeGrid} from "./grid/quadtree.js";
+
+initUrlSync();
 
 const mapGridSystem = (gridSystemString) => {
 	if(gridSystemString == 'slippy') return new SlippyTilesGrid(map);
@@ -50,10 +53,10 @@ const selectedStyle = new Style({
 const gridSource = new VectorSource({wrapX: true});
 const selectedSource = new VectorSource({wrapX: true});
 
+const { mapCenter, mapZoom } = getState();
 const view = new View({
-    center: [0,0],
-    zoom: 5,
-		center: [1288648, 6129703],
+    zoom: mapZoom,
+		center: mapCenter,
 		projection: 'EPSG:3857',
 		multiWorld: false
 });
@@ -151,17 +154,16 @@ function selectTile(lon, lat) {
 	const { selectedCells } = getState();
 	if(!selectedCells.includes(id)) {
 		setState({ selectedCells: [...selectedCells, id], });
+		renderSelected([...selectedCells, id]);
 	}
-	renderSelected();
 }
 
 subscribe(({ selectedCells }) => {
-	renderSelected();
+	renderSelected(selectedCells);
 });
 
-function renderSelected() {
+function renderSelected(selectedCells) {
 	selectedSource.clear();
-	const { selectedCells } = getState();
 	const polygons = selectedCells.map(tile => gridSystem.decode(tile));
 	const features = polygons.map(polygon => new Feature(new Polygon(polygon)));
 	features.forEach(feature => feature.setStyle(selectedStyle));
@@ -174,9 +176,9 @@ map.getView().on('change:resolution', () => {
 });
 
 // map moving
-// TODO: not just on move end (but all the time when moving, continuous)
 map.on('moveend', () => {
 	drawGrid();
+  setState({ mapCenter: view.getCenter(), mapZoom: view.getZoom() });
 });
 
 let last = null;

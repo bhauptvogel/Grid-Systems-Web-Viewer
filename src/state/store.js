@@ -1,5 +1,7 @@
 const state = {
 	activeGridSystem: 'slippy', // options: slippy, h3, quadtree, geohash
+	mapCenter: [1288648, 6129703], // munich
+	mapZoom: 5,
 	selectedCells: [],
 	hoveredCell: '',
 }
