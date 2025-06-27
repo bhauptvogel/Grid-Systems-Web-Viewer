@@ -4,6 +4,7 @@ const state = {
 	mapZoom: 5,
 	selectedCells: [],
 	hoveredCell: '',
+	isDrawing: false,
 }
 
 const listeners = new Set();

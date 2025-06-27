@@ -14,7 +14,34 @@
 		</style>
   </head>
   <body>
+		<!-- ─── MAP ─── -->
     <div id="map" style="width: 100vw; height: 100vh;"></div>
+
+		<!-- ─── TOOL BUTTONS ─── -->
+		<div id="panel-tools" class="ui-panel">
+			<button id="btnSearch"  title="Search"   class="tool-btn">
+				<img src="/src/assets/search.svg"    alt="Search">
+			</button>
+			<button id="btnLine"    title="Draw line"   class="tool-btn">
+				<img src="/src/assets/line.svg"      alt="Draw line">
+			</button>
+			<button id="btnPoly"    title="Draw polygon" class="tool-btn">
+				<img src="/src/assets/polygon.svg"   alt="Draw polygon">
+			</button>
+			<button id="btnRect"    title="Draw rectangle" class="tool-btn">
+				<img src="/src/assets/rectangle.svg" alt="Draw rectangle">
+			</button>
+			<button id="btnCircle"  title="Draw circle" class="tool-btn">
+				<img src="/src/assets/circle.svg"    alt="Draw circle">
+			</button>
+			<button id="btnUpload"  title="Upload GeoJSON" class="tool-btn">
+				<img src="/src/assets/upload.svg"    alt="Upload GeoJSON">
+			</button>
+			<button id="btnReset"  title="Reset the Drawing" class="tool-btn">
+				<img src="/src/assets/trash.svg"    alt="Reset the Drawing">
+			</button>
+		</div>
+
 		<!-- ─── GRID SELECTOR ─── -->
 		<div id="panel-grid" class="ui-panel">
 			<label class="ui-field">

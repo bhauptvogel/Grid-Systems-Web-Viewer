@@ -74,3 +74,50 @@
   white-space:pre-wrap;       /* wrap long tokens */
 }
 
+#panel-tools {
+  top: 1rem;
+  left: 1rem;
+  flex-direction: column;     /* vertical stack */
+  gap: .4rem;                 /* tighter than default panels */
+}
+
+:root{
+  --tool-bg: #ffffff;        /* button face colour            */
+  --tool-fg: #333;           /* icon tint via filter below    */
+  --tool-accent: #0d6efd;    /* hover / active ring           */
+}
+
+#panel-tools .tool-btn{
+  all: unset;                        /* kill default button chrome        */
+  box-sizing: border-box;
+  width: 2.8rem;
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tool-bg);
+  border: 2px solid transparent;
+  border-radius: .6rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .05s;
+}
+
+#panel-tools .tool-btn img{
+  width: 1.4rem;
+  height: 1.4rem;
+  /* tint any monochrome SVG with currentColor, 
+     or leave colour icons untouched */
+  filter: invert(18%) sepia(6%) saturate(0%) hue-rotate(179deg) brightness(95%) contrast(89%);
+}
+
+/* Hover / focus ring */
+#panel-tools .tool-btn:hover,
+#panel-tools .tool-btn:focus-visible{
+  border-color: var(--tool-accent);
+}
+
+/* Active click feedback */
+#panel-tools .tool-btn:active{
+  transform: scale(.94);
+}

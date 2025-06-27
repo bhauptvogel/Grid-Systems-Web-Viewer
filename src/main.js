@@ -12,9 +12,11 @@ import {Fill, Stroke, Style} from 'ol/style.js';
 import { initUrlSync } from './queryParams.js';
 import {toLonLat, fromLonLat, transformExtent} from 'ol/proj.js';
 import {getWidth as getExtentWidth} from 'ol/extent.js';
+import { drawTools } from './drawTools.js';
 import './ui/gridSelector.js';
 import './ui/selectedCellsInput.js';
 import './ui/cellIdLabel.js';
+import './ui/toolBar.js';
 
 import { getState, subscribe, setState } from './state/store.js';
 
@@ -23,15 +25,8 @@ import {GeohashGrid} from "./grid/geohash.js";
 import {UberH3Grid} from "./grid/h3.js";
 import {QuadTreeGrid} from "./grid/quadtree.js";
 
+// INIT: QueryParams
 initUrlSync();
-
-const mapGridSystem = (gridSystemString) => {
-	if(gridSystemString == 'slippy') return new SlippyTilesGrid(map);
-	else if(gridSystemString == 'h3') return new UberH3Grid(map);
-	else if(gridSystemString == 'geohash') return new GeohashGrid(map);
-	else if(gridSystemString == 'quadtree') return new QuadTreeGrid(map);
-	else throw new Error("Not a valid grid selected!");
-};
 
 const tileStyle = new Style({
   stroke: new Stroke({
@@ -78,12 +73,33 @@ const map = new Map({
 	view: view,
 });
 
+const gridRegistry = {
+  slippy   : new SlippyTilesGrid(map), 
+  geohash  : new GeohashGrid(map),
+  h3       : new UberH3Grid(map),
+  quadtree : new QuadTreeGrid(map),
+};
+
+// INIT: Draw Tools
+drawTools.init({map, grids: gridRegistry});
+
+const mapGridSystem = (key) => {
+  const grid = gridRegistry[key];
+  if (!grid) throw new Error(`Not a valid grid selected: “${key}”`);
+  return grid;
+}
+
 const { activeGridSystem } = getState();
 var gridSystem = mapGridSystem(activeGridSystem);
+var previousGridKey = getState().activeGridSystem;
 
 subscribe(({ activeGridSystem }) => {
-	gridSystem = mapGridSystem(activeGridSystem);
-	drawGrid();
+	if (activeGridSystem !== previousGridKey) {
+		previousGridKey = activeGridSystem;
+		drawTools.reset();
+		gridSystem = mapGridSystem(activeGridSystem);
+		drawGrid();
+	}
 });
 
 
@@ -147,15 +163,15 @@ function drawGrid() {
 }
 
 
-function resetSelected() { setState({ selectedCells: [] }); }
+function resetSelected() { 
+	setState({ selectedCells: [] });
+	drawTools.reset();
+}
 
 function selectTile(lon, lat) {
 	const id = gridSystem.encode(lat, lon);
 	const { selectedCells } = getState();
-	if(!selectedCells.includes(id)) {
-		setState({ selectedCells: [...selectedCells, id], });
-		renderSelected([...selectedCells, id]);
-	}
+	if(!selectedCells.includes(id)) setState({ selectedCells: [...selectedCells, id], });
 }
 
 subscribe(({ selectedCells }) => {
@@ -192,6 +208,7 @@ map.on('pointermove', function (event) {
 });
 
 map.on('click', (event) => {
+	if(getState().isDrawing) return;
 	if(event.originalEvent.ctrlKey == false) resetSelected();
 	const [lon, lat] = toLonLat(event.coordinate);
 	selectTile(lon, lat);
