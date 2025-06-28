@@ -1,123 +1,128 @@
-/* generic floating panel style */
-.ui-panel{
-  position:absolute;                 /* let each panel place itself */
-  z-index:1000;
-  display:flex;
-  gap:.5rem;
-  align-items:center;
-  padding:.75rem 1rem;
-  background:rgba(255,255,255,.9);
-  border-radius:.5rem;
-  box-shadow:0 0 .5rem rgba(0,0,0,.25);
-  font-family:system-ui,sans-serif;
-  font-size:1.2rem;
+/* Generic floating panel */
+.ui-panel {
+  position: absolute;
+  z-index: 1000;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--ui-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.25);
+  font-family: system-ui, sans-serif;
+  font-size: 1.2rem;
 }
 
-/* where they live */
-#panel-grid { top:1rem; right:1rem; }
+/* Panel placements */
+#panel-grid   { top: 1rem; right: 1rem; }
+#panel-hover  { top: 1rem; left: 50%; transform: translateX(-50%); justify-content: center; }
+#panel-list   { bottom: 1rem; left: 1rem; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+#panel-tools  { top: 1rem; left: 1rem; flex-direction: column; gap: 0.4rem; }
 
-#panel-hover{
-  top:1rem;
-  left:50%;
-  transform:translateX(-50%);        /* true horizontal centring */
-	justify-content:center;
+/* Text input styling */
+/* Apply consistent input style for all form controls */
+.ui-field textarea,
+.ui-field select {
+  font-size: 1rem;
+  color: var(--ui-fg);
+  background: var(--ui-bg);
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-#panel-list {
-	bottom:1rem;
-	left:1rem;
-  flex-direction:column;          /* label/textarea (row) + tip (row) stacked */
-  align-items:flex-start;         /* keep everything left-aligned */
-  gap:.3rem;        
+/* Hover/focus effect */
+.ui-field textarea:focus,
+.ui-field select:focus {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: 0 0 0 2px var(--ui-accent); /* match --ui-accent */
 }
 
-.ui-field select,
-.ui-field input,
-.ui-field textarea{
-  font-size:1.2rem;                       /* match panel’s base size */
-  padding:.25rem .4rem;
+/* Textarea specific layout */
+.ui-field textarea {
+  min-width: 24rem;
+  max-height: 8rem;
+  line-height: 1.4;
+  overflow-y: auto;
+  resize: vertical;
+  white-space: pre-wrap;
 }
 
-/* field-level cosmetics (unchanged) */
-.ui-field{ display:flex; align-items:center; gap:.75rem; }
-.ui-label{ font-weight:600; white-space:nowrap; }
-.ui-field input{ min-width:10rem; padding:.25rem .4rem; }
-.ui-hover{ font-style:italic; min-width:8rem; text-align:center; }
-.ui-tip{
-  margin-top:.5rem;
-  font-size:.7em;
-  font-style:italic;
-  opacity:.75;
-	padding-bottom:.6rem;
+/* Select specific layout */
+.ui-field select {
+  min-width: 12rem;
+  appearance: none; /* remove default dropdown styling */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,50 70,100 120,50' fill='none' stroke='%23333' stroke-width='20'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 0.8rem;
+  padding-right: 2rem;
+  cursor: pointer;
 }
 
-.ui-buttons{
-  display:flex;
-  gap:.75rem;
+/* Field formatting */
+.ui-field         { display: flex; align-items: center; gap: 0.75rem; }
+.ui-label         { font-weight: 600; white-space: nowrap; }
+.ui-hover         { font-style: italic; min-width: 8rem; text-align: center; }
+.ui-tip           { margin-top: 0.5rem; font-size: 0.7em; font-style: italic; opacity: 0.75; padding-bottom: 0.6rem; }
+
+/* Buttons layout */
+.ui-buttons {
+  display: flex;
+  gap: 0.75rem;
 }
 
-/* optional: consistent look & feel */
-.ui-buttons button{
-  padding:.4rem .9rem;
-  font-size:1rem;
-  cursor:pointer;
-}
-
-
-.ui-field textarea{
-  min-width:24rem;
-  height:auto;
-  max-height:8rem;            /* 8 × root-em ≈ 128 px */
-  line-height:1.2;
-  overflow-y:hidden;          /* JS flips to auto when max reached */
-  resize:none;                /* user can’t override height */
-  white-space:pre-wrap;       /* wrap long tokens */
-}
-
-#panel-tools {
-  top: 1rem;
-  left: 1rem;
-  flex-direction: column;     /* vertical stack */
-  gap: .4rem;                 /* tighter than default panels */
-}
-
-:root{
-  --tool-bg: #ffffff;        /* button face colour            */
-  --tool-fg: #333;           /* icon tint via filter below    */
-  --tool-accent: #0d6efd;    /* hover / active ring           */
-}
-
-#panel-tools .tool-btn{
-  all: unset;                        /* kill default button chrome        */
+/* Base button style (shared) */
+.ui-button {
+  all: unset;
   box-sizing: border-box;
-  width: 2.8rem;
-  height: 2.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--tool-bg);
+  background: var(--ui-bg);
   border: 2px solid transparent;
-  border-radius: .6rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  border-radius: 0.6rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   cursor: pointer;
-  transition: background .15s, border-color .15s, transform .05s;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+  font-size: 1rem;
+  color: var(--ui-fg);
 }
 
-#panel-tools .tool-btn img{
+/* Icon-only buttons */
+.ui-button.icon {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
+.icon-svg {
   width: 1.4rem;
   height: 1.4rem;
-  /* tint any monochrome SVG with currentColor, 
-     or leave colour icons untouched */
-  filter: invert(18%) sepia(6%) saturate(0%) hue-rotate(179deg) brightness(95%) contrast(89%);
+  color: var(--ui-fg);   /* or any color variable */
+  background-color: var(--ui-bg);
+  transition: fill 0.2s;
 }
 
-/* Hover / focus ring */
-#panel-tools .tool-btn:hover,
-#panel-tools .tool-btn:focus-visible{
-  border-color: var(--tool-accent);
+.ui-button:hover .icon-svg {
+  color: var(--ui-accent);
+}
+  
+
+/* Text buttons (grow with content) */
+.ui-button.text {
+  padding: 0.4rem 0.9rem;
+}
+
+/* Hover/focus ring */
+.ui-button:hover,
+.ui-button:focus-visible {
+  border-color: var(--ui-accent);
 }
 
 /* Active click feedback */
-#panel-tools .tool-btn:active{
-  transform: scale(.94);
+.ui-button:active {
+  transform: scale(0.94);
 }
