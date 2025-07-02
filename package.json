@@ -12,7 +12,6 @@
     "vite": "^6.3.1"
   },
   "dependencies": {
-    "@turf/turf": "^7.2.0",
     "h3-js": "^4.2.1",
     "ngeohash": "^0.6.3",
     "ol": "^10.5.0"
