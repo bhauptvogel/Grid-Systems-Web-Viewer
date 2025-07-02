@@ -1,7 +1,3 @@
-// src/tools/drawTools.js
-// Centralised geometry-to-cell utilities with multi-shape support.
-// Import once; call drawTools.init({ map, grids }).
-
 import VectorSource        from 'ol/source/Vector.js';
 import VectorLayer         from 'ol/layer/Vector.js';
 import Draw, { createBox } from 'ol/interaction/Draw.js';
@@ -13,13 +9,11 @@ import {
 } from 'ol/style.js';
 import { fromCircle }      from 'ol/geom/Polygon.js';
 import GeoJSON             from 'ol/format/GeoJSON.js';
-import { fromLonLat }      from 'ol/proj.js';
+import { toLonLat } from 'ol/proj.js';
 
 import { getState, setState } from './state/store.js';
 
-/* ------------------------------------------------------------------ */
-/*  Projection helper                                                 */
-/* ------------------------------------------------------------------ */
+// Projection helper
 function toWGS84(map, geom) {
   const src = map.getView().getProjection();
   return src.getCode() === 'EPSG:4326'
@@ -27,9 +21,7 @@ function toWGS84(map, geom) {
     : geom.clone().transform(src, 'EPSG:4326');
 }
 
-/* ------------------------------------------------------------------ */
-/*  Module-level singletons                                           */
-/* ------------------------------------------------------------------ */
+// singletons (module-level)
 let map          = null;
 let gridRegistry = null;
 let activeDraw   = null;
@@ -46,56 +38,68 @@ const drawLayer    = new VectorLayer({
   }),
 });
 
-/* ------------------------------------------------------------------ */
-/*  Init                                                              */
-/* ------------------------------------------------------------------ */
+// init module
 function init({ map: mapInstance, grids }) {
   map          = mapInstance;
   gridRegistry = grids;
   map.addLayer(drawLayer);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Geometry → cell-ID translation                                    */
-/* ------------------------------------------------------------------ */
+// geometry -> tile ids
 function cellsFromGeometry(rawGeom) {
   const grid = gridRegistry?.[getState().activeGridSystem];
   if (!grid) return [];
 
   const geom = toWGS84(map, rawGeom);
+	const precision = getState().precision;
 
   switch (geom.getType()) {
     case 'Polygon':
-    case 'MultiPolygon':
 			const poly = geom.getCoordinates()[0];
-      return grid.polygonToCells(poly);
+      return grid.polygonToCells(precision,poly);
 
     case 'Circle':
-			const circlePoly = fromCircle(geom, 64).getCoordinates()[0];
-      return grid.polygonToCells(circlePoly);
+			const polyProjected = fromCircle(rawGeom, 64);
+			const polyWgs       = toWGS84(map, polyProjected);
+			const circlePoly = polyWgs.getCoordinates()[0];
+      return grid.polygonToCells(precision,circlePoly);
 
-    case 'LineString': {
-      const ids = new Set();
-      const n   = Math.max(1, Math.ceil(geom.getLength() / 5e4)); // ~50 km
+    case 'LineString':
+			const ids      = new Set();
+      const viewProj = map.getView().getProjection();
+			const view     = map.getView();
+ 
+      const metricGeom =
+        viewProj.getCode() === 'EPSG:3857'
+          ? rawGeom
+          : rawGeom.clone().transform(viewProj, 'EPSG:3857');
+      const metresPerPixel = view.getResolution();
+      const pixelsBetweenSamples = 10;
+      const sampleDist = metresPerPixel * pixelsBetweenSamples;
+
+      const n = Math.max(1,Math.ceil(metricGeom.getLength() / sampleDist));
+
       for (let i = 0; i <= n; i++) {
-        const [lon, lat] = geom.getCoordinateAt(i / n);
-        ids.add(grid.encode(lat, lon));
+        const coord = rawGeom.getCoordinateAt(i / n);
+        const [lon, lat] =
+          viewProj.getCode() === 'EPSG:4326'
+            ? coord
+            : toLonLat(coord, viewProj);
+        ids.add(grid.encode(precision, lat, lon));
       }
       return [...ids];
-    }
   }
   return [];
 }
 
+// merge cells to state
 function mergeIntoSelection(ids) {
   if (!ids?.length) return;
   const prev = getState().selectedCells;
   setState({ selectedCells: [...new Set([...prev, ...ids])] });
 }
 
-/* ------------------------------------------------------------------ */
-/*  Draw-mode lifecycle                                               */
-/* ------------------------------------------------------------------ */
+// draw mode lifecycle: stop
 function stopCurrentInteraction() {
   if (activeDraw) {
     map.removeInteraction(activeDraw);
@@ -105,9 +109,10 @@ function stopCurrentInteraction() {
     document.removeEventListener('keydown', escHandler);
     escHandler = null;
   }
-    setState({ isDrawing: false });
+  setState({ isDrawing: false });
 }
 
+// draw mode lifecycle: begin
 function beginDrawInteraction(cfg) {
   stopCurrentInteraction();
 
@@ -126,15 +131,13 @@ function beginDrawInteraction(cfg) {
   setState({ isDrawing: true });
 }
 
+// reset drawing
 function reset() {
   stopCurrentInteraction();
   vectorSource.clear();
 }
 
-
-/* ------------------------------------------------------------------ */
-/*  Public API                                                        */
-/* ------------------------------------------------------------------ */
+// api
 function activate(mode) {
   if (!map) {
     console.warn('drawTools: init() not yet called');
@@ -142,7 +145,7 @@ function activate(mode) {
   }
 
   const cfg = {
-    line:      { type: 'LineString' },
+		line:      { type: 'LineString' , maxPoints: 2},
     polygon:   { type: 'Polygon' },
     rectangle: { type: 'Circle', geometryFunction: createBox() },
     circle:    { type: 'Circle' },
@@ -166,7 +169,16 @@ function importGeoJSON(text) {
       featureProjection: map.getView().getProjection(),
       dataProjection   : 'EPSG:4326',
     });
-    feats.forEach(f => mergeIntoSelection(cellsFromGeometry(f.getGeometry())));
+		vectorSource.addFeatures(feats);
+    function addGeometry(geom) {
+      const type = geom.getType();
+      if (type.startsWith('Multi') || type === 'GeometryCollection') {
+        geom.getGeometries().forEach(addGeometry);
+      } else {
+        mergeIntoSelection(cellsFromGeometry(geom));
+      }
+    }
+    feats.forEach(f => addGeometry(f.getGeometry()));
   } catch (err) {
     console.error(err);
     alert('GeoJSON could not be parsed');

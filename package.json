@@ -12,7 +12,6 @@
     "vite": "^6.3.1"
   },
   "dependencies": {
-    "@mapbox/tile-cover": "^3.0.2",
     "@turf/turf": "^7.2.0",
     "h3-js": "^4.2.1",
     "ngeohash": "^0.6.3",
