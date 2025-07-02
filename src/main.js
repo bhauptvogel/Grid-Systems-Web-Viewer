@@ -74,51 +74,68 @@ const map = new Map({
 	view: view,
 });
 
+
+// ============== GRID SYSTEM CONTROL ============== 
 const gridRegistry = {
-  slippy   : new SlippyTilesGrid(map), 
-  geohash  : new GeohashGrid(map),
-  h3       : new UberH3Grid(map),
-  quadtree : new QuadTreeGrid(map),
+  slippy   : new SlippyTilesGrid(), 
+  geohash  : new GeohashGrid(),
+  h3       : new UberH3Grid(),
+  quadtree : new QuadTreeGrid(),
 };
 
 // INIT: Draw Tools
 drawTools.init({map, grids: gridRegistry});
 
-const mapGridSystem = (key) => {
+const gridSystem = () => {
+	const key = getState().activeGridSystem;
   const grid = gridRegistry[key];
   if (!grid) throw new Error(`Not a valid grid selected: “${key}”`);
   return grid;
 }
 
-const { activeGridSystem } = getState();
-var gridSystem = mapGridSystem(activeGridSystem);
-var previousGridKey = getState().activeGridSystem;
+const watchActiveGridSystem = (() => {
+  let prevKey = getState().activeGridSystem;
+  return (state) => {
+    const { activeGridSystem: nextKey } = state;
+    if (nextKey === prevKey) return;
+    prevKey = nextKey;
 
-subscribe(({ activeGridSystem }) => {
-	if (activeGridSystem !== previousGridKey) {
-		previousGridKey = activeGridSystem;
-		drawTools.reset();
-		gridSystem = mapGridSystem(activeGridSystem);
-		setState({ precisionLocked: false });
-		updatePrecision();
-		drawGrid();
-	}
-});
+    // UI housekeeping
+    drawTools.reset();
+    // Unlock precision 
+    setState({ precisionLocked: false });
+    // Recompute precision and redraw
+    updatePrecision();
+    drawGrid();
+  };
+})();
 
+subscribe(watchActiveGridSystem);
+
+// ============== PRECISION CONTROL ============== 
+// map zoom level to precision state
 const updatePrecision = () => {
-  const { precision: currentPrecision, precisionLocked } = getState();
+  const { precision: current, precisionLocked } = getState();
   if (precisionLocked) return;
-  const nextPrecision = gridSystem.mapToPrecision(
-    map.getView().getZoom()
-  );
-  if (nextPrecision !== currentPrecision) {
-    setState({ precision: nextPrecision });
-  }
+  const next = gridSystem().mapToPrecision(map.getView().getZoom());
+  if (next !== current) setState({ precision: next });
 };
-updatePrecision(); //init
+// re-draw grid when precision is changed
+const watchPrecision = (() => {
+  let prevPrecision = getState().precision;
+  return (state) => {
+    if (state.precision !== prevPrecision) {
+      prevPrecision = state.precision;
+      drawGrid();
+    }
+  };
+})();
 const getCurrentPrecision = () => getState().precision;
 subscribe(updatePrecision);
+subscribe(watchPrecision);
 
+
+// ============== TILE DRAWING ============== 
 const EPS = 1e-9;
 // Split a [minLon, maxLon] range into one or two non-wrapping ranges.
 // Returns an array of [lonMin, lonMax] tuples, always with lonMin < lonMax.
@@ -169,41 +186,40 @@ function drawGrid() {
   const lonSlices = splitByAntimeridian(minLon0, maxLon0).flatMap(growLon);
 
   const features = lonSlices.flatMap(([lonMin, lonMax]) =>
-    gridSystem
+    gridSystem()
      .polygonToCells(getCurrentPrecision(), ring([lonMin, minLat, lonMax, maxLat]))
-     .map(h => new Feature(new Polygon(gridSystem.decode(h))))
+     .map(h => new Feature(new Polygon(gridSystem().decode(h))))
   );
 
   features.forEach(f => f.setStyle(tileStyle));
   gridSource.addFeatures(features);
 }
 
-
+// ============== SELECTED ============== 
 function resetSelected() { 
 	setState({ selectedCells: [] });
 	drawTools.reset();
 }
 
 function selectTile(lon, lat) {
-	const id = gridSystem.encode(getCurrentPrecision(), lat, lon);
+	const id = gridSystem().encode(getCurrentPrecision(), lat, lon);
 	const { selectedCells } = getState();
 	if(!selectedCells.includes(id)) setState({ selectedCells: [...selectedCells, id], });
 }
 
-function renderSelected(selectedCells) {
+function renderSelected() {
+	const { selectedCells } = getState();
 	selectedSource.clear();
-	const polygons = selectedCells.map(tile => gridSystem.decode(tile));
+	const polygons = selectedCells.map(tile => gridSystem().decode(tile));
 	const features = polygons.map(polygon => new Feature(new Polygon(polygon)));
 	features.forEach(feature => feature.setStyle(selectedStyle));
 	selectedSource.addFeatures(features);
 }
 
+subscribe(() => renderSelected());
 
-subscribe(({ selectedCells }) => {
-	renderSelected(selectedCells);
-});
-subscribe(() => drawGrid());
 
+// ============== MAP EVENTS ============== 
 // zoom change
 map.getView().on('change:resolution', () => {
 	drawGrid();
@@ -221,7 +237,7 @@ map.on('moveend', () => {
 let last = null;
 map.on('pointermove', function (event) {
 	const [lon, lat] = toLonLat(event.coordinate);
-	const cell = gridSystem.encode(getCurrentPrecision(), lat, lon);
+	const cell = gridSystem().encode(getCurrentPrecision(), lat, lon);
 	if (cell !== last) {
 		last = cell;
 		setState({ hoveredCell: cell});
