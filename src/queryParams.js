@@ -23,6 +23,18 @@ export function initUrlSync() {
   const t = qs.get('tiles');
   if (t) patch.selectedCells = t.split(',').filter(Boolean);
 
+	// Precision
+	const p = qs.get('precision');
+  if (p !== null) {
+    const pv = Number(p);
+    if (Number.isFinite(pv) && pv >= 0) {
+      patch.precision       = pv;
+      patch.precisionLocked = true;
+    }
+  } else {
+    patch.precisionLocked = false;
+  }
+
   if (Object.keys(patch).length) setState(patch);
 
   subscribe(debounce(updateUrlFromState, 150));
@@ -35,6 +47,7 @@ function updateUrlFromState(state = getState()) {
   if (state.mapCenter) qp.set('center', state.mapCenter.map(num=>num.toFixed(1)).join(','));
   if (state.mapZoom) qp.set('zoom', String(state.mapZoom.toFixed(1)));
   if (state.selectedCells?.length) qp.set('tiles', state.selectedCells.join(','));
+	if (state.precisionLocked) qp.set('precision', String(state.precision));
 
   const newQuery = `?${qp.toString()}`;
   if (newQuery !== window.location.search) {
