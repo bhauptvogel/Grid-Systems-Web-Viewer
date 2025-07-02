@@ -155,41 +155,6 @@ function activate(mode) {
   beginDrawInteraction(cfg);
 }
 
-function search(input) {
-  if (!map) {
-    console.warn('drawTools: init() not yet called');
-    return;
-  }
-  const view  = map.getView();
-  const parts = input.split(',').map(s => s.trim());
-
-  // lat,lon
-  if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-    const lat  = parseFloat(parts[0]);
-    const lon  = parseFloat(parts[1]);
-    view.animate({ center: fromLonLat([lon, lat]), zoom: 10 });
-    const grid = gridRegistry?.[getState().activeGridSystem];
-    if (grid) mergeIntoSelection([grid.encode(lat, lon)]);
-    return;
-  }
-
-  // tile id
-  const grid = gridRegistry?.[getState().activeGridSystem];
-  if (!grid) {
-    alert('Unknown grid system');
-    return;
-  }
-
-  try {
-    const poly = grid.decode(input);             // geometry in WGS84
-    poly.transform('EPSG:4326', view.getProjection());
-    view.fit(poly.getExtent(), { padding: [50, 50, 50, 50] });
-    mergeIntoSelection([input]);
-  } catch {
-    alert('Input not recognised as coordinates or tile-id');
-  }
-}
-
 function importGeoJSON(text) {
   if (!map) {
     console.warn('drawTools: init() not yet called');
@@ -216,7 +181,6 @@ function hasDrawings() {
 export const drawTools = {
   init,                       // ({ map, grids })
   activate,                   // 'line' | 'polygon' | 'rectangle' | 'circle'
-  search,                     // 'lat,lon' | 'tileId'
   importGeoJSON,
   reset,                      // clears drawings + selection
   hasDrawings,                // boolean for map-click guard

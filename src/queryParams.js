@@ -1,15 +1,12 @@
 import { getState, setState, subscribe } from './state/store.js';
 
-// Config
-const VALID_GRIDS = new Set(['slippy', 'h3', 'quadtree', 'geohash']);
-
 export function initUrlSync() {
   const qs = new URLSearchParams(window.location.search);
   const patch = {};
 
   // Grid system
   const g = qs.get('type');
-  if (VALID_GRIDS.has(g)) patch.activeGridSystem = g;
+  if (g) patch.activeGridSystem = g;
 
   // Center
   const c = qs.get('center')?.split(',').map(Number);
@@ -37,7 +34,7 @@ export function initUrlSync() {
 
   if (Object.keys(patch).length) setState(patch);
 
-  subscribe(debounce(updateUrlFromState, 150));
+  subscribe(updateUrlFromState);
 }
 
 function updateUrlFromState(state = getState()) {
@@ -55,10 +52,3 @@ function updateUrlFromState(state = getState()) {
   }
 }
 
-function debounce(fn, ms = 100) {
-  let id;
-  return (...args) => {
-    clearTimeout(id);
-    id = setTimeout(() => fn(...args), ms);
-  };
-}

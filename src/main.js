@@ -11,7 +11,7 @@ import VectorSource from 'ol/source/Vector.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
 import { initUrlSync } from './queryParams.js';
 import {toLonLat, fromLonLat, transformExtent} from 'ol/proj.js';
-import {getWidth as getExtentWidth} from 'ol/extent.js';
+import { boundingExtent } from 'ol/extent.js';
 import { drawTools } from './drawTools.js';
 import './ui/gridSelector.js';
 import './ui/selectedCellsInput.js';
@@ -26,9 +26,10 @@ import {GeohashGrid} from "./grid/geohash.js";
 import {UberH3Grid} from "./grid/h3.js";
 import {QuadTreeGrid} from "./grid/quadtree.js";
 
+
 // INIT: QueryParams
 initUrlSync();
-
+// ============== MAP INIT ============== 
 const tileStyle = new Style({
   stroke: new Stroke({
     color: 'red',
@@ -134,7 +135,6 @@ const getCurrentPrecision = () => getState().precision;
 subscribe(updatePrecision);
 subscribe(watchPrecision);
 
-
 // ============== TILE DRAWING ============== 
 const EPS = 1e-9;
 // Split a [minLon, maxLon] range into one or two non-wrapping ranges.
@@ -219,6 +219,7 @@ function renderSelected() {
 subscribe(() => renderSelected());
 
 
+updatePrecision();
 // ============== MAP EVENTS ============== 
 // zoom change
 map.getView().on('change:resolution', () => {
@@ -244,6 +245,7 @@ map.on('pointermove', function (event) {
 	}
 });
 
+// tile selection per click
 map.on('click', (event) => {
 	if(getState().isDrawing) return;
 	if(event.originalEvent.ctrlKey == false) resetSelected();
@@ -251,3 +253,31 @@ map.on('click', (event) => {
 	selectTile(lon, lat);
 });
 
+// move to coordinate
+document.addEventListener('app:searchCoordinate', (e) => {
+  const { lat, lon } = e.detail;
+  view.animate({
+    center: fromLonLat([lon, lat]),
+    duration: 400,
+  });
+});
+
+// move to tile
+document.addEventListener('app:searchCell', (e) => {
+  const { cellId } = e.detail;
+  try {
+		const ring = (() => { const p = gridSystem().decode(cellId); return Array.isArray(p[0][0]) ? p[0] : p; })();
+    const [cx, cy] = ring.reduce(([sx, sy], [x, y]) => [sx + x, sy + y], [0, 0]).map(v => v / ring.length);
+
+    const ext = boundingExtent(ring), w = ext[2] - ext[0], h = ext[3] - ext[1];
+    const pad = [ext[0] - w, ext[1] - h, ext[2] + w, ext[3] + h];
+
+    const res  = view.getResolutionForExtent(pad, map.getSize());
+    const zoom = Math.min(view.getMaxZoom(), Math.round(view.getZoomForResolution(res) * 2) / 2);
+
+    view.animate({ center: [cx, cy], zoom: zoom, duration: 250 });
+    setState({ selectedCells: [cellId] });
+  } catch {
+    alert(`Could not locate “${cellId}”.\nDoes it match the active grid system?`);
+  }
+});

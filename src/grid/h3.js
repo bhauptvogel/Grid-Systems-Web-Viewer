@@ -36,6 +36,7 @@ export class UberH3Grid {
 		return res;
 	}
 	decode(id) {
+		if(!(/^[0-9a-f]{15,16}$/.test(id))) throw new Error(`ID ${id} does not match a Uber H3 id!`);
 		const ring = this._unwrapRing(cellToBoundary(id, true)); // lat/lon order → lon/lat below
 		const mercator = ring.map(([lon, lat]) => fromLonLat([lon, lat]));
 		return [mercator];

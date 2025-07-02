@@ -39,6 +39,7 @@ export class SlippyTilesGrid {
 		return `${precision}/${x}/${y}`;
 	}
 	decode(id) {
+		if(!(/^(\d+)\/(\d+)\/(\d+)$/.test(id))) throw new Error(`ID ${id} does not match a slippy id!`);
 		const [precision, x, y] = id.split("/").map(Number);
 		const resolution = (2 * originShift) / Math.pow(2,precision);
 		const minX = -originShift + x * resolution;

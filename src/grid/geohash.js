@@ -17,6 +17,7 @@ export class GeohashGrid {
 		return geohash.encode(lat, lon, precision);
 	}
 	decode(id) {
+		if(!(/^[0-9bcdefghjkmnpqrstuvwxyz]{1,12}$/.test(id))) throw new Error(`ID ${id} does not match a geohash!`);
 		const bbox = geohash.decode_bbox(id);
 		return [[
 				fromLonLat([bbox[1], bbox[0]]), // bottom-left

@@ -26,6 +26,7 @@ export class QuadTreeGrid extends SlippyTilesGrid {
 	}
 	decode(id) {
 		if (id.length === 0) console.warn('QuadKey is empty');
+		if(!(/^[0-3]{1,23}$/.test(id))) throw new Error(`ID ${id} does not match a QuadKey!`);
 
 		let x = 0, y = 0;
 		const z = id.length;  // each digit represents one zoom level

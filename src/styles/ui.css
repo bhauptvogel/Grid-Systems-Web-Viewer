@@ -17,8 +17,10 @@
 #panel-grid   { top: 1rem; right: 1rem; width: clamp(10rem, 12rem, 15rem); height: 2rem; }
 #panel-hover  { top: 1rem; left: 50%; transform: translateX(-50%); justify-content: center; height: 2rem; }
 #panel-list   { bottom: 1rem; left: 1rem; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
-#panel-tools  { top: 1rem; left: 1rem; flex-direction: column; gap: 0.4rem; }
+#panel-tools  { top: 1rem; left: 1rem; flex-direction: row; gap: 1rem; width: 2.8rem; align-items: start; }
+#panel-tools .toolbar { display: flex; flex-direction: column; gap: 0.4rem; }
 #panel-precision           { top: 5rem; right: 1rem; flex-direction: column; gap: 0.5rem; width: clamp(10rem, 12rem, 15rem);}
+
 
 /* Text input styling */
 /* Apply consistent input style for all form controls */
@@ -157,3 +159,23 @@
   height: 2rem;
   font-size: 1.2rem;
 }
+
+
+/* ───────── Search field (toolbar) ───────── */
+.toolbar-search-input {
+  width: 180px;
+  margin-left: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid var(--ui-border, #ccc);
+  background: var(--ui-bg, #fff);
+  outline: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.toolbar-search-input.hidden {
+  display: none;
+}
+
