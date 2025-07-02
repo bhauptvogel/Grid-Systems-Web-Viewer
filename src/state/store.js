@@ -1,6 +1,8 @@
 const state = {
 	activeGridSystem: 'slippy', // options: slippy, h3, quadtree, geohash
-	mapCenter: [1288648, 6129703], // munich
+	precision: 0, // int
+	precisionLocked: false, // boolean
+	mapCenter: [1288648, 6129703], // default is munich
 	mapZoom: 5,
 	selectedCells: [],
 	hoveredCell: '',

@@ -10,23 +10,22 @@ function slippyToQuadKey(z,x,y) {
 			if (y & mask) digit += 2;      //   +2 if the y-bit is set
 			quadKey += digit;              // digit is 0,1,2,3
 		}
-		if(quadKey.length === 0) console.log(z,x,y);
 		return quadKey;
 }
 
 // Bing Maps
 export class QuadTreeGrid extends SlippyTilesGrid {
-	polygonToCells(polygon) {
-		const slippyCells = super.polygonToCells(polygon);
+	polygonToCells(precision, polygon) {
+		const slippyCells = super.polygonToCells(precision, polygon);
 		return slippyCells.map(cell => slippyToQuadKey(cell.split('/')[0], cell.split('/')[1], cell.split('/')[2]));
 	}
-	encode(lat, lon) {
-		const slippyID = super.encode(lat, lon);
+	encode(precision, lat, lon) {
+		const slippyID = super.encode(precision, lat, lon);
 		const [zRaw, xRaw, yRaw] = slippyID.split('/');
 		return slippyToQuadKey(Number(zRaw), Number(xRaw), Number(yRaw));
 	}
 	decode(id) {
-		if (id.length === 0) throw new Error('QuadKey must not be empty.');
+		if (id.length === 0) console.warn('QuadKey is empty');
 
 		let x = 0, y = 0;
 		const z = id.length;  // each digit represents one zoom level

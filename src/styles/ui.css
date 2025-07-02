@@ -14,16 +14,17 @@
 }
 
 /* Panel placements */
-#panel-grid   { top: 1rem; right: 1rem; }
-#panel-hover  { top: 1rem; left: 50%; transform: translateX(-50%); justify-content: center; }
+#panel-grid   { top: 1rem; right: 1rem; width: clamp(10rem, 12rem, 15rem); height: 2rem; }
+#panel-hover  { top: 1rem; left: 50%; transform: translateX(-50%); justify-content: center; height: 2rem; }
 #panel-list   { bottom: 1rem; left: 1rem; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
 #panel-tools  { top: 1rem; left: 1rem; flex-direction: column; gap: 0.4rem; }
+#panel-precision           { top: 5rem; right: 1rem; flex-direction: column; gap: 0.5rem; width: clamp(10rem, 12rem, 15rem);}
 
 /* Text input styling */
 /* Apply consistent input style for all form controls */
 .ui-field textarea,
 .ui-field select {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--ui-fg);
   background: var(--ui-bg);
   border: 2px solid transparent;
@@ -120,9 +121,39 @@
 .ui-button:hover,
 .ui-button:focus-visible {
   border-color: var(--ui-accent);
+	color: var(--ui-accent);
 }
 
 /* Active click feedback */
 .ui-button:active {
   transform: scale(0.94);
+}
+
+/* ─── PRECISION CONTROL PANEL ─── */
+
+/* rows share basic flex layout */
+#panel-precision #precisionRow     { display:flex; gap: 1rem; justify-content: center; align-items: center; }
+
+/* highlight precision value when locked */
+#panel-precision.locked #precisionValue {
+  color: var(--ui-accent);
+  font-weight: 600;
+}
+
+/* ─── VISUAL “DISABLED” STYLE FOR ± BUTTONS ─── */
+#panel-precision .ui-button.icon:disabled {
+  opacity: 0.35;            /* fade out */
+  cursor: not-allowed;      /* show forbidden cursor */
+  box-shadow: none;         /* flatten */
+  filter: grayscale(100%);  /* desaturate */
+  transform: none;          /* cancel :active scale effect */
+  border-color: transparent;
+}
+
+
+/* compact ± buttons */
+#panel-precision .ui-button.icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.2rem;
 }

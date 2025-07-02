@@ -1,24 +1,23 @@
-import {getRes0Cells, latLngToCell, polygonToCells, cellToBoundary} from "h3-js";
-import {toLonLat,fromLonLat} from 'ol/proj';
+import {latLngToCell, polygonToCells, cellToBoundary} from "h3-js";
+import {fromLonLat} from 'ol/proj';
 import {isWiderThan180, splitWidePolygon} from './utils/antimeridian-split.js';
 
 export class UberH3Grid {
-	constructor(map) { this.map = map };
-	precision() {
-		const z = Math.floor(this.map.getView().getZoom());
+	mapToPrecision(zoom) {
+		const z = Math.floor(zoom);
 		if (z < 3) return 0;
 		if (z >= 23) return 15;
 		return Math.floor((z - 2) * 0.75);
 	}
-	polygonToCells(polygon) {
-		if(!isWiderThan180(polygon)) return polygonToCells(polygon, this.precision(), true);
+	polygonToCells(precision, polygon) {
+		if(!isWiderThan180(polygon)) return polygonToCells(polygon, precision, true);
 		else {
 			const rings = splitWidePolygon(polygon);
-			return polygonToCells(rings[0], this.precision(), true).concat(polygonToCells(rings[1], this.precision(), true)); 
+			return polygonToCells(rings[0], precision, true).concat(polygonToCells(rings[1], precision, true)); 
 		}
 	}
-	encode(lat, lon) {
-		return latLngToCell(lat, lon, this.precision());
+	encode(precision, lat, lon) {
+		return latLngToCell(lat, lon, precision);
 	}
 	_unwrapRing(ring) {
 		const res = [ring[0].slice()];

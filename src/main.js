@@ -17,6 +17,7 @@ import './ui/gridSelector.js';
 import './ui/selectedCellsInput.js';
 import './ui/cellIdLabel.js';
 import './ui/toolBar.js';
+import './ui/precisionControl.js';
 
 import { getState, subscribe, setState } from './state/store.js';
 
@@ -98,10 +99,25 @@ subscribe(({ activeGridSystem }) => {
 		previousGridKey = activeGridSystem;
 		drawTools.reset();
 		gridSystem = mapGridSystem(activeGridSystem);
+		setState({ precisionLocked: false });
+		updatePrecision();
 		drawGrid();
 	}
 });
 
+const updatePrecision = () => {
+  const { precision: currentPrecision, precisionLocked } = getState();
+  if (precisionLocked) return;
+  const nextPrecision = gridSystem.mapToPrecision(
+    map.getView().getZoom()
+  );
+  if (nextPrecision !== currentPrecision) {
+    setState({ precision: nextPrecision });
+  }
+};
+updatePrecision(); //init
+const getCurrentPrecision = () => getState().precision;
+subscribe(updatePrecision);
 
 const EPS = 1e-9;
 // Split a [minLon, maxLon] range into one or two non-wrapping ranges.
@@ -154,7 +170,7 @@ function drawGrid() {
 
   const features = lonSlices.flatMap(([lonMin, lonMax]) =>
     gridSystem
-     .polygonToCells(ring([lonMin, minLat, lonMax, maxLat]))
+     .polygonToCells(getCurrentPrecision(), ring([lonMin, minLat, lonMax, maxLat]))
      .map(h => new Feature(new Polygon(gridSystem.decode(h))))
   );
 
@@ -169,14 +185,10 @@ function resetSelected() {
 }
 
 function selectTile(lon, lat) {
-	const id = gridSystem.encode(lat, lon);
+	const id = gridSystem.encode(getCurrentPrecision(), lat, lon);
 	const { selectedCells } = getState();
 	if(!selectedCells.includes(id)) setState({ selectedCells: [...selectedCells, id], });
 }
-
-subscribe(({ selectedCells }) => {
-	renderSelected(selectedCells);
-});
 
 function renderSelected(selectedCells) {
 	selectedSource.clear();
@@ -186,21 +198,30 @@ function renderSelected(selectedCells) {
 	selectedSource.addFeatures(features);
 }
 
+
+subscribe(({ selectedCells }) => {
+	renderSelected(selectedCells);
+});
+subscribe(() => drawGrid());
+
 // zoom change
 map.getView().on('change:resolution', () => {
 	drawGrid();
+  setState({ mapCenter: view.getCenter(), mapZoom: view.getZoom() });
+	updatePrecision();
 });
 
 // map moving
 map.on('moveend', () => {
 	drawGrid();
   setState({ mapCenter: view.getCenter(), mapZoom: view.getZoom() });
+	updatePrecision();
 });
 
 let last = null;
 map.on('pointermove', function (event) {
 	const [lon, lat] = toLonLat(event.coordinate);
-	const cell = gridSystem.encode(lat, lon);
+	const cell = gridSystem.encode(getCurrentPrecision(), lat, lon);
 	if (cell !== last) {
 		last = cell;
 		setState({ hoveredCell: cell});
@@ -213,3 +234,4 @@ map.on('click', (event) => {
 	const [lon, lat] = toLonLat(event.coordinate);
 	selectTile(lon, lat);
 });
+
