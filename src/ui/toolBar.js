@@ -26,6 +26,7 @@ bind('btnSearch', () => {
 });
 function performSearch(query) {
 	if (!query) return;
+	drawTools.reset();
 
   // 1) coordinate search  (lat,lon   or   lon,lat)
   const m = query.match(
