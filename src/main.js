@@ -203,17 +203,10 @@ function drawGrid() {
 	gridSource.addFeatures(features);
 }
 
-// ============== SELECTED ============== 
-function resetSelected() { 
-	history.push([...selectedCells]);
-	setState({ selectedCells: [], });
-	drawTools.reset();
-}
-
+// ============== TILE SELECTION ============== 
 function selectTile(lon, lat) {
 	const id = gridSystem().encode(getCurrentPrecision(), lat, lon);
 	const { selectedCells } = getState();
-	history.push([...selectedCells]);
 	if(selectedCells.includes(id)) setState({ selectedCells: selectedCells.filter(cell => cell !== id) });
 	else setState({ selectedCells: [...selectedCells, id], });
 }
@@ -259,7 +252,6 @@ map.on('pointermove', function (event) {
 // tile selection per click
 map.on('click', (event) => {
 	if(getState().isDrawing) return;
-	//if(event.originalEvent.ctrlKey == false) resetSelected();
 	const [lon, lat] = toLonLat(event.coordinate);
 	selectTile(lon, lat);
 });
@@ -290,7 +282,6 @@ document.addEventListener('app:searchCell', (e) => {
     view.animate({ center: [cx, cy], zoom: zoom, duration: 250 });
 		const { selectedCells } = getState();
     if(!selectedCells.includes(cellId)) {
-			history.push([...selectedCells]);
 			setState({ selectedCells: [...selectedCells, cellId], });
 		}
   } catch {

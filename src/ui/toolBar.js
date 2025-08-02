@@ -1,16 +1,50 @@
 import { drawTools } from '../drawTools.js';
+import { subscribe } from '../state/store.js';
 
+let currentActiveBtn = null;
+
+function setActiveButton(id) {
+  if (currentActiveBtn) {
+    currentActiveBtn.classList.remove('active-draw');
+  }
+  const btn = document.getElementById(id);
+  if (btn) {
+    btn.classList.add('active-draw');
+    currentActiveBtn = btn;
+  }
+}
+
+function clearActiveButton() {
+  if (currentActiveBtn) {
+    currentActiveBtn.classList.remove('active-draw');
+    currentActiveBtn = null;
+  }
+}
+
+subscribe(({ isDrawing }) => {
+  if (!isDrawing) clearActiveButton();
+});
+
+// Draw modes --------------------------------------------------------------
 function bind(id, fn) {
   const btn = document.getElementById(id);
   if (btn) btn.addEventListener('click', fn);
 }
 
-// Draw modes --------------------------------------------------------------
-bind('btnLine',   () => drawTools.activate('line'));
-bind('btnPoly',   () => drawTools.activate('polygon'));
-bind('btnRect',   () => drawTools.activate('rectangle'));
-bind('btnCircle', () => drawTools.activate('circle'));
+function toggleDrawMode(buttonId, mode) {
+  if (currentActiveBtn?.id === buttonId) {
+		drawTools.stopCurrentInteraction();
+    clearActiveButton();
+  } else {
+    drawTools.activate(mode);
+    setActiveButton(buttonId);
+  }
+}
 
+bind('btnLine',   () => toggleDrawMode('btnLine', 'line'));
+bind('btnPoly',   () => toggleDrawMode('btnPoly', 'polygon'));
+bind('btnRect',   () => toggleDrawMode('btnRect', 'rectangle'));
+bind('btnCircle', () => toggleDrawMode('btnCircle', 'circle'));
 // Search ------------------------------------------------------------------
 const SEARCH_INPUT_ID = 'toolbarSearchInput';
 bind('btnSearch', () => {

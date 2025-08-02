@@ -100,6 +100,15 @@
   height: 2.8rem;
 }
 
+.ui-button.active-draw {
+  border-color: var(--ui-accent);
+  color: var(--ui-accent);
+}
+
+.ui-button.active-draw .icon-svg {
+  color: var(--ui-accent);
+}
+
 .icon-svg {
   width: 1.4rem;
   height: 1.4rem;

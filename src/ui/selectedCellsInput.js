@@ -1,5 +1,5 @@
 import { getState, setState, subscribe } from '../state/store.js';
-import { undo, redo, canUndo, canRedo, push } from '../history.js';
+import { undo, redo, canUndo, canRedo } from '../history.js';
 
 const input = document.getElementById('cellInput');   // <textarea id="cellInput">
 
@@ -93,8 +93,6 @@ if (btnReset) {
 
   btnReset.addEventListener('click', () => {
     // Clear selected cells from state
-		const { selectedCells } = getState();
-		push([...selectedCells]);
     setState({ selectedCells: [] });
 
     // Give feedback

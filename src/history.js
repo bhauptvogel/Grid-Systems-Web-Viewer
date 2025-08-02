@@ -1,24 +1,52 @@
-import { getState, setState } from './state/store.js';
+// src/history.js  (completely rewritten)
+import { getState, setState, subscribe } from './state/store.js';
 
 const undoStack = [];
 const redoStack = [];
 const MAX_HISTORY = 100;
 
-// public helpers ------------------------------------------------------------
-export function push(snapshot) {
-  undoStack.push(snapshot);
-  if (undoStack.length > MAX_HISTORY) undoStack.shift();
-  redoStack.length = 0;             // a new action forgets future redos
-  notify();
-}
+let lastCells = [...getState().selectedCells];  // initial reference
+let blockHistory = false;                       // prevents loops
+
+// ── helper ────────────────────────────────────────────────────────────────
+const arraysEqual = (a, b) =>
+  a.length === b.length && a.every((v, i) => v === b[i]);
+
+const notify = () => document.dispatchEvent(new Event('history:change'));
+const apply  = cells => setState({ selectedCells: cells });
+
+// ── global store subscription ─────────────────────────────────────────────
+subscribe(state => {
+  if (blockHistory) {               // skip changes triggered by undo/redo
+    lastCells = [...state.selectedCells];
+    return;
+  }
+
+  if (!arraysEqual(state.selectedCells, lastCells)) {
+    // record *previous* state
+    undoStack.push([...lastCells]);
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    redoStack.length = 0;           // any new action kills future redos
+    lastCells = [...state.selectedCells];
+    notify();
+  }
+});
+
+// ── public API ────────────────────────────────────────────────────────────
+export const canUndo = () => undoStack.length > 0;
+export const canRedo = () => redoStack.length > 0;
 
 export function undo() {
   if (!undoStack.length) return;
   const current = getState().selectedCells;
   const prev    = undoStack.pop();
   redoStack.push([...current]);
-	apply(prev);
-	notify();
+
+  blockHistory = true;
+  apply(prev);
+  blockHistory = false;
+
+  notify();
 }
 
 export function redo() {
@@ -26,14 +54,11 @@ export function redo() {
   const current = getState().selectedCells;
   const next    = redoStack.pop();
   undoStack.push([...current]);
+
+  blockHistory = true;
   apply(next);
-	notify();
+  blockHistory = false;
+
+  notify();
 }
-
-export const canUndo = () => undoStack.length > 0;
-export const canRedo = () => redoStack.length > 0;
-
-// private helpers -----------------------------------------------------------
-const apply = cells => setState({ selectedCells: cells });
-const notify = () => document.dispatchEvent(new Event('history:change'));
 

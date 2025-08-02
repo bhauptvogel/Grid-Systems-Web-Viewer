@@ -196,5 +196,6 @@ export const drawTools = {
   importGeoJSON,
   reset,                      // clears drawings + selection
   hasDrawings,                // boolean for map-click guard
+	stopCurrentInteraction,
 };
 

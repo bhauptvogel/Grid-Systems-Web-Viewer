@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 *.sh
 *.excalidraw
+*.odt
 
 example-*/
