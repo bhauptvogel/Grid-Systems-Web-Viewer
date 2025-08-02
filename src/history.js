@@ -1,4 +1,3 @@
-// src/history.js  (completely rewritten)
 import { getState, setState, subscribe } from './state/store.js';
 
 const undoStack = [];

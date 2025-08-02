@@ -4,11 +4,11 @@ import { subscribe } from '../state/store.js';
 let currentActiveBtn = null;
 
 function setActiveButton(id) {
-  if (currentActiveBtn) {
-    currentActiveBtn.classList.remove('active-draw');
-  }
   const btn = document.getElementById(id);
   if (btn) {
+    if (currentActiveBtn) {
+      currentActiveBtn.classList.remove('active-draw');
+    }
     btn.classList.add('active-draw');
     currentActiveBtn = btn;
   }
@@ -23,6 +23,7 @@ function clearActiveButton() {
 
 subscribe(({ isDrawing }) => {
   if (!isDrawing) clearActiveButton();
+	updateResetButton();	
 });
 
 // Draw modes --------------------------------------------------------------
@@ -95,10 +96,30 @@ bind('btnUpload', () => {
   const picker = document.createElement('input');
   picker.type = 'file';
   picker.accept = '.geojson,application/geo+json,application/json';
-  picker.onchange = () => picker.files?.[0]?.text().then(drawTools.importGeoJSON);
+  picker.onchange = () => {
+    picker.files?.[0]?.text().then(text => {
+      drawTools.importGeoJSON(text);
+      updateResetButton(); // <- added here
+    });
+  };
   picker.click();
 });
 
-bind('btnReset', () => drawTools.reset());
+
+// Reset ----------------------------------------------------------
+bind('btnReset', () => {
+  drawTools.reset();
+  updateResetButton();
+});
+
+
+function updateResetButton() {
+  const btn = document.getElementById('btnReset');
+  if (btn) {
+    const hasDrawings = drawTools.hasDrawings?.();
+    btn.disabled = !hasDrawings;
+  }
+}
+
 
 
