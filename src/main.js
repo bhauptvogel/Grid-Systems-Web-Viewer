@@ -21,15 +21,16 @@ import './ui/precisionControl.js';
 
 import { getState, subscribe, setState } from './state/store.js';
 import * as history from './history.js';
+import { showToast } from './ui/toast.js';
 
 import {SlippyTilesGrid} from "./grid/slippy.js";
 import {GeohashGrid} from "./grid/geohash.js";
 import {UberH3Grid} from "./grid/h3.js";
 import {QuadTreeGrid} from "./grid/quadtree.js";
 
-
 // INIT: QueryParams
 initUrlSync();
+
 // ============== MAP INIT ============== 
 const tileStyle = new Style({
   stroke: new Stroke({
@@ -175,6 +176,7 @@ function grow(minCoord, maxCoord, limit, growFactor) {
 const growLat = (minLat, maxLat) => grow(minLat, maxLat, 85.051129 - EPS, GROW_FACTOR);
 const growLon = ([minLon, maxLon]) => [grow(minLon, maxLon, 180-EPS, GROW_FACTOR)];
 
+const MAX_FEATURES = 10000;
 function drawGrid() {
   gridSource.clear();
 
@@ -191,9 +193,14 @@ function drawGrid() {
      .polygonToCells(getCurrentPrecision(), ring([lonMin, minLat, lonMax, maxLat]))
      .map(h => new Feature(new Polygon(gridSystem().decode(h))))
   );
+	
+	if (features.length > MAX_FEATURES) {
+		showToast(`Too many grid cells to display (${features.length.toLocaleString()} > ${MAX_FEATURES}), please reduce precision!`);
+		return;
+	}
 
-  features.forEach(f => f.setStyle(tileStyle));
-  gridSource.addFeatures(features);
+	features.forEach(f => f.setStyle(tileStyle));
+	gridSource.addFeatures(features);
 }
 
 // ============== SELECTED ============== 
@@ -257,6 +264,7 @@ map.on('click', (event) => {
 	selectTile(lon, lat);
 });
 
+// ============== SEARCH LOGIC ============= 
 // move to coordinate
 document.addEventListener('app:searchCoordinate', (e) => {
   const { lat, lon } = e.detail;
@@ -286,11 +294,11 @@ document.addEventListener('app:searchCell', (e) => {
 			setState({ selectedCells: [...selectedCells, cellId], });
 		}
   } catch {
-    alert(`Could not locate “${cellId}”.\nDoes it match the active grid system?`);
+    showToast(`Could not locate “${cellId}”.\nDoes it match the active grid system?`);
   }
 });
 
-// Keyboard shortcuts
+// ============== KEYBOARD SHORTCUTS ============= 
 document.addEventListener('keydown', (event) => {
   const view = map.getView();
   const zoom = view.getZoom();
