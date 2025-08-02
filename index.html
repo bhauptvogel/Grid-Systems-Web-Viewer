@@ -118,12 +118,20 @@
 				<span class="ui-label">Selection:</span>
 				<textarea rows="1" id="cellInput" placeholder="cell1,cell2,…" spellcheck="false"></textarea>
 			</label>
-			<div id="multiTip" class="ui-tip">
-				Tip: hold <kbd>Ctrl</kbd> and click to select multiple tiles
-			</div>
 			
 			<!-- ─── BUTTON ROW ─── -->
 			<div class="ui-buttons">
+				<button id="btnUndo" title="Undo (Ctrl+Z)" class="ui-button icon" disabled>
+					<svg style="margin: 5px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M20 7H9.00001C6.23858 7 4 9.23857 4 12C4 14.7614 6.23858 17 9 17H16M20 7L17 4M20 7L17 10" transform="scale(-1,1) translate(-24,0)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</button>
+				<button id="btnRedo" title="Redo (Ctrl+Y)" class="ui-button icon" disabled>
+					<svg style="margin: 5px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M20 7H9.00001C6.23858 7 4 9.23857 4 12C4 14.7614 6.23858 17 9 17H16M20 7L17 4M20 7L17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</button>
+				<button id="btnClear" class="ui-button text">Reset Selection</button>
 				<button id="btnCopy" class="ui-button text">Copy to Clipboard</button>
 				<!-- <button id="btnLoad">Load from file</button>
 				<button id="btnExport">Export</button> -->

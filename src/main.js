@@ -20,6 +20,7 @@ import './ui/toolBar.js';
 import './ui/precisionControl.js';
 
 import { getState, subscribe, setState } from './state/store.js';
+import * as history from './history.js';
 
 import {SlippyTilesGrid} from "./grid/slippy.js";
 import {GeohashGrid} from "./grid/geohash.js";
@@ -197,14 +198,17 @@ function drawGrid() {
 
 // ============== SELECTED ============== 
 function resetSelected() { 
-	setState({ selectedCells: [] });
+	history.push([...selectedCells]);
+	setState({ selectedCells: [], });
 	drawTools.reset();
 }
 
 function selectTile(lon, lat) {
 	const id = gridSystem().encode(getCurrentPrecision(), lat, lon);
 	const { selectedCells } = getState();
-	if(!selectedCells.includes(id)) setState({ selectedCells: [...selectedCells, id], });
+	history.push([...selectedCells]);
+	if(selectedCells.includes(id)) setState({ selectedCells: selectedCells.filter(cell => cell !== id) });
+	else setState({ selectedCells: [...selectedCells, id], });
 }
 
 function renderSelected() {
@@ -218,8 +222,8 @@ function renderSelected() {
 
 subscribe(() => renderSelected());
 
-
 updatePrecision();
+
 // ============== MAP EVENTS ============== 
 // zoom change
 map.getView().on('change:resolution', () => {
@@ -248,7 +252,7 @@ map.on('pointermove', function (event) {
 // tile selection per click
 map.on('click', (event) => {
 	if(getState().isDrawing) return;
-	if(event.originalEvent.ctrlKey == false) resetSelected();
+	//if(event.originalEvent.ctrlKey == false) resetSelected();
 	const [lon, lat] = toLonLat(event.coordinate);
 	selectTile(lon, lat);
 });
@@ -276,8 +280,35 @@ document.addEventListener('app:searchCell', (e) => {
     const zoom = Math.min(view.getMaxZoom(), Math.round(view.getZoomForResolution(res) * 2) / 2);
 
     view.animate({ center: [cx, cy], zoom: zoom, duration: 250 });
-    setState({ selectedCells: [cellId] });
+		const { selectedCells } = getState();
+    if(!selectedCells.includes(cellId)) {
+			history.push([...selectedCells]);
+			setState({ selectedCells: [...selectedCells, cellId], });
+		}
   } catch {
     alert(`Could not locate “${cellId}”.\nDoes it match the active grid system?`);
   }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (event) => {
+  const view = map.getView();
+  const zoom = view.getZoom();
+
+	// ── MAP ZOOM ───────────────────────────────────────────────
+  if (event.key === '+' || event.key === '=') {
+    view.setZoom(zoom + 1);
+  } else if (event.key === '-') {
+    view.setZoom(zoom - 1);
+  }
+
+	// ── HISTORY UNDO / REDO ───────────────────────────────────────────────
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z' && !event.shiftKey) {
+    history.undo();
+  }
+  if ((event.ctrlKey || event.metaKey) &&
+      (event.key.toLowerCase() === 'y' || (event.key.toLowerCase() === 'z' && event.shiftKey))) {
+    history.redo();
+  }
+
 });

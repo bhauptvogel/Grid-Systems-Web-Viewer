@@ -7,7 +7,7 @@ export class UberH3Grid {
 		const z = Math.floor(zoom);
 		if (z < 3) return 0;
 		if (z >= 23) return 15;
-		return Math.floor((z - 2) * 0.75);
+		return Math.floor((z - 1) * 0.75);
 	}
 	polygonToCells(precision, polygon) {
 		if(!isWiderThan180(polygon)) return polygonToCells(polygon, precision, true);

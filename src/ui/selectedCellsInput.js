@@ -1,4 +1,5 @@
 import { getState, setState, subscribe } from '../state/store.js';
+import { undo, redo, canUndo, canRedo, push } from '../history.js';
 
 const input = document.getElementById('cellInput');   // <textarea id="cellInput">
 
@@ -62,6 +63,53 @@ subscribe(state => {
   }
 });
 
+/* ====================================================
+ * Undo / Redo
+ * ==================================================== */
+const undoBtn = document.getElementById('btnUndo');
+const redoBtn = document.getElementById('btnRedo');
+
+// click → action
+undoBtn.addEventListener('click', undo);
+redoBtn.addEventListener('click', redo);
+
+// enable / disable depending on stack depth
+function refreshHistoryButtons() {
+  undoBtn.disabled = !canUndo();
+  redoBtn.disabled = !canRedo();
+}
+
+refreshHistoryButtons();
+document.addEventListener('history:change', refreshHistoryButtons);
+
+/* ====================================================
+ * Reset Selection 
+ * ==================================================== */
+const btnReset = document.getElementById('btnClear');
+
+if (btnReset) {
+  const fixedWidth = btnReset.offsetWidth + 'px';
+  const originalLabel = btnReset.textContent;
+
+  btnReset.addEventListener('click', () => {
+    // Clear selected cells from state
+		const { selectedCells } = getState();
+		push([...selectedCells]);
+    setState({ selectedCells: [] });
+
+    // Give feedback
+    btnReset.style.width = fixedWidth;  // lock width
+    btnReset.style.color = 'red';
+    btnReset.textContent = 'Reset!';
+
+    // Reset to original after timeout
+    setTimeout(() => {
+      btnReset.style.color = '';
+      btnReset.textContent = originalLabel;
+      btnReset.style.width = '';        // unlock width
+    }, 2000);
+  });
+}
 
 /* ====================================================
  *  Copy-to-Clipboard button

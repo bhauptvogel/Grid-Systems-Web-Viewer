@@ -6,7 +6,7 @@ const originShift = Math.PI * worldRadius;
 
 export class SlippyTilesGrid {
 	mapToPrecision(zoom) {
-		return Math.max(3, Math.floor(zoom+0.5));
+		return Math.max(3, Math.floor(zoom+1.5));
 	}
 	polygonToCells(precision, polygon) {
 		const results = [];

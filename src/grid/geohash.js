@@ -3,7 +3,7 @@ import geohash from 'ngeohash';
 
 export class GeohashGrid {
 	mapToPrecision(zoom) {
-		const metresPerPixel = 156543.03392804097 / (2 ** zoom);
+		const metresPerPixel = 156543.03392804097 / (2 ** (zoom+0.5));
 		const desired = metresPerPixel * 200;
 		const sizes = [5009400, 626000, 78000, 19500, 2440, 610, 76, 19, 2.4]; 
 		return sizes.findIndex(s => s < desired) + 1 || 9;
