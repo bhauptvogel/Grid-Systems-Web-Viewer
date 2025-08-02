@@ -7,6 +7,7 @@ const state = {
 	selectedCells: [],
 	hoveredCell: '',
 	isDrawing: false,
+	activeBaseLayer: 'osm',
 }
 
 const listeners = new Set();

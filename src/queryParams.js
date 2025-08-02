@@ -8,6 +8,10 @@ export function initUrlSync() {
   const g = qs.get('type');
   if (g) patch.activeGridSystem = g;
 
+  // Basemap
+  const b = qs.get('basemap');
+  if (b) patch.activeBaseLayer = b;
+
   // Center
   const c = qs.get('center')?.split(',').map(Number);
   if (c?.length === 2 && c.every(Number.isFinite)) patch.mapCenter = c;
@@ -41,6 +45,7 @@ function updateUrlFromState(state = getState()) {
   const qp = new URLSearchParams();
 
   qp.set('type', state.activeGridSystem);
+	qp.set('basemap', state.activeBaseLayer);
   if (state.mapCenter) qp.set('center', state.mapCenter.map(num=>num.toFixed(1)).join(','));
   if (state.mapZoom) qp.set('zoom', String(state.mapZoom.toFixed(1)));
   if (state.selectedCells?.length) qp.set('tiles', state.selectedCells.join(','));

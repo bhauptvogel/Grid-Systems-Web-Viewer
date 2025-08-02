@@ -2,15 +2,13 @@ import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import { defaults as defaultInteractions } from 'ol/interaction';
-import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector.js';
-import OSM from 'ol/source/OSM.js';
 import Polygon from 'ol/geom/Polygon.js';
 import Feature from 'ol/Feature.js'
 import VectorSource from 'ol/source/Vector.js';
 import {Fill, Stroke, Style} from 'ol/style.js';
 import { initUrlSync } from './queryParams.js';
-import {toLonLat, fromLonLat, transformExtent} from 'ol/proj.js';
+import { toLonLat, fromLonLat } from 'ol/proj.js';
 import { boundingExtent } from 'ol/extent.js';
 import { drawTools } from './drawTools.js';
 import './ui/gridSelector.js';
@@ -18,10 +16,12 @@ import './ui/selectedCellsInput.js';
 import './ui/cellIdLabel.js';
 import './ui/toolBar.js';
 import './ui/precisionControl.js';
+import './ui/baseLayerSelector.js';
 
 import { getState, subscribe, setState } from './state/store.js';
 import * as history from './history.js';
 import { showToast } from './ui/toast.js';
+import { BASEMAPS } from './basemaps.js';
 
 import {SlippyTilesGrid} from "./grid/slippy.js";
 import {GeohashGrid} from "./grid/geohash.js";
@@ -30,6 +30,15 @@ import {QuadTreeGrid} from "./grid/quadtree.js";
 
 // INIT: QueryParams
 initUrlSync();
+
+// ===== BASE-MAP LAYERS =================================================
+const baseLayers = Object.fromEntries(
+  Object.entries(BASEMAPS).map(([id, def]) => [id, def.layer()])
+);
+
+Object.entries(baseLayers).forEach(([id, layer]) =>
+  layer.setVisible(id === getState().activeBaseLayer)
+);
 
 // ============== MAP INIT ============== 
 const tileStyle = new Style({
@@ -63,9 +72,7 @@ const view = new View({
 const map = new Map({
   target: 'map', 
   layers: [
-    new TileLayer({
-			source: new OSM(),
-    }),
+		...Object.values(baseLayers),
 		new VectorLayer({
 			source: gridSource,
 		}),
@@ -77,6 +84,17 @@ const map = new Map({
 	view: view,
 });
 
+// ===== WATCH BASE-MAP CHANGES ==========================================
+const watchBaseLayer = (() => {
+  let prev = getState().activeBaseLayer;
+  return state => {
+    if (state.activeBaseLayer === prev) return;
+    baseLayers[prev].setVisible(false);
+    baseLayers[state.activeBaseLayer].setVisible(true);
+    prev = state.activeBaseLayer;
+  };
+})();
+subscribe(watchBaseLayer);
 
 // ============== GRID SYSTEM CONTROL ============== 
 const gridRegistry = {

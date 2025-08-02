@@ -20,6 +20,7 @@
 #panel-tools  { top: 1rem; left: 1rem; flex-direction: row; gap: 1rem; width: 2.8rem; align-items: start; }
 #panel-tools .toolbar { display: flex; flex-direction: column; gap: 0.4rem; }
 #panel-precision           { top: 5rem; right: 1rem; flex-direction: column; gap: 0.5rem; width: clamp(10rem, 12rem, 15rem);}
+#panel-basemap { bottom: 1rem; right: 3rem; width: clamp(10rem, 12rem, 15rem); height: 2rem; }
 
 
 /* Text input styling */
