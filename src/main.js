@@ -176,7 +176,7 @@ function grow(minCoord, maxCoord, limit, growFactor) {
 const growLat = (minLat, maxLat) => grow(minLat, maxLat, 85.051129 - EPS, GROW_FACTOR);
 const growLon = ([minLon, maxLon]) => [grow(minLon, maxLon, 180-EPS, GROW_FACTOR)];
 
-const MAX_FEATURES = 10000;
+const MAX_FEATURES = 20000;
 function drawGrid() {
   gridSource.clear();
 
@@ -195,7 +195,7 @@ function drawGrid() {
   );
 	
 	if (features.length > MAX_FEATURES) {
-		showToast(`Too many grid cells to display (${features.length.toLocaleString()} > ${MAX_FEATURES}), please reduce precision!`);
+		showToast(`Too many grid cells to display (${features.length.toLocaleString()} > ${MAX_FEATURES.toLocaleString()}) please reduce precision!`);
 		return;
 	}
 
@@ -309,5 +309,4 @@ document.addEventListener('keydown', (event) => {
       (event.key.toLowerCase() === 'y' || (event.key.toLowerCase() === 'z' && event.shiftKey))) {
     history.redo();
   }
-
 });
