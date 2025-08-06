@@ -1,10 +1,10 @@
-import { BASEMAPS } from '../basemaps.js';
+import { BASEMAP_CATALOG } from '../baselayers/registry.js';
 import { getState, setState, subscribe } from '../state/store.js';
 
 const select = document.getElementById('basemapSelect');
 if (!select) throw new Error('<select id="basemapSelect"> missing!');
 
-Object.entries(BASEMAPS).forEach(([id, { label }]) => {
+Object.entries(BASEMAP_CATALOG).forEach(([id, { label }]) => {
   const opt = document.createElement('option');
   opt.value = id;
   opt.textContent = label;

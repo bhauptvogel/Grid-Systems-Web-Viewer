@@ -1,5 +1,5 @@
 import { getState, setState, subscribe } from '../state/store.js';
-import { undo, redo, canUndo, canRedo } from '../history.js';
+import { undo, redo, canUndo, canRedo } from '../selectionHistory.js';
 
 const input = document.getElementById('cellInput');   // <textarea id="cellInput">
 

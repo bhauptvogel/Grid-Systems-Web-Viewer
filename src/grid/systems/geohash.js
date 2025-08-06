@@ -9,6 +9,7 @@ export class GeohashGrid {
 		return sizes.findIndex(s => s < desired) + 1 || 9;
 	}
 	polygonToCells(precision, polygon) {
+		if(precision == 0) return [];
     // Compute bounding box of the polygon (min/max lon and lat)
     let minLon = Infinity, minLat = Infinity;
     let maxLon = -Infinity, maxLat = -Infinity;

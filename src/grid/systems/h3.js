@@ -1,6 +1,6 @@
 import {latLngToCell, polygonToCells, cellToBoundary} from "h3-js";
 import {fromLonLat} from 'ol/proj';
-import {isWiderThan180, splitWidePolygon} from './utils/antimeridian-split.js';
+import {isWiderThan180, splitWidePolygon} from '../utils/antimeridian-split.js';
 
 export class UberH3Grid {
 	mapToPrecision(zoom) {
