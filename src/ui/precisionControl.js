@@ -1,6 +1,5 @@
 import { getState, setState, subscribe } from '../state/store.js';
 
-
 const panel       = document.getElementById('panel-precision');
 const valueEl     = document.getElementById('precisionValue');
 const minusBtn    = document.getElementById('precisionMinus');

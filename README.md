@@ -32,3 +32,34 @@ npx serve dist
   * `queryParams.js` - URL state synchronisation.
   * `selectionHistory.js` - Undo / Redo stack for selected cells.
   * `main.js` – Entry point that initializes the app.
+
+## 🗺️ Adding a new background rasterization
+
+1. Open `src/baselayers/registry.js` and add an entry:
+``` js
+export const BASEMAP_CATALOG = {
+  // ...
+  mytiles: {
+    label: 'My Tiles',
+    type : 'XYZ', // 'OSM' for default OSM, 'XYZ' for custom URL
+    url  : 'https://example.com/tiles/{z}/{x}/{y}.png',
+    attribution: '© My Tile Provider',
+  },
+};
+```
+
+## 🌐 Adding a new grid system
+
+1. Create the implementation by adding `src/grid/systems/mygrid.js` and implement the following methods (*mandatory*):
+    * `mapToPrecision(view)` - Return an int describing the precision that should be used for the current map view.
+    * `polygonToCells(precision, polygon)` - Convert a polygon to an array of cell IDs at the given precision.
+    * `encode(precision, lat, lon)` - Encode coordinates and precision to a cell ID string.
+    * `decode(id)` - Decode a cell ID string to a polygon representing the cell
+2. Register it in `src/grid/registry.js`:
+``` js
+export const GRID_CATALOG = {
+  // ...
+  mygrid: { label: 'My Grid', class: MyGrid },
+};
+```
+
