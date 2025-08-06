@@ -11,7 +11,7 @@ import { fromCircle }      from 'ol/geom/Polygon.js';
 import GeoJSON             from 'ol/format/GeoJSON.js';
 import { toLonLat } from 'ol/proj.js';
 
-import { getState, setState } from '../state/store.js';
+import { getState, setState } from './state/store.js';
 
 // Projection helper
 function toWGS84(map, geom) {

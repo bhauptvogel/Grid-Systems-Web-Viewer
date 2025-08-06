@@ -12,7 +12,7 @@ import { createBaseLayers, watchBaseLayer } from './baselayers/index.js';
 import { gridRegistry } from './grid/index.js';
 import { drawGrid } from './grid/drawGrid.js';
 
-import { drawTools } from './draw/drawTools.js';
+import { drawTools } from './drawTools.js';
 
 import { registerMapEvents } from './events/mapEvents.js';
 import { registerSearchEvents } from './events/searchEvents.js';
