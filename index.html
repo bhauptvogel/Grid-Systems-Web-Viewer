@@ -20,7 +20,8 @@
 			}
 			div.ol-zoom {
 				bottom: 1em;
-				right: .5em;
+				right: 1em;
+				max-width: 2rem;
 				left: auto;
 				top: auto;
 			}
@@ -78,10 +79,6 @@
 		<div id="panel-grid" class="ui-panel">
 			<label class="ui-field">
 				<select id="gridSelect">
-					<option value="slippy">Slippy Tiles</option>
-					<option value="geohash">Geohash</option>
-					<option value="h3">Uber H3</option>
-					<option value="quadtree">Quadtree</option>
 				</select>
 			</label>
 		</div>
@@ -136,6 +133,14 @@
 				<!-- <button id="btnLoad">Load from file</button>
 				<button id="btnExport">Export</button> -->
 			</div>
+		</div>
+
+		<!-- ─── SELECTED BASE MAP ─── -->
+		<div id="panel-basemap" class="ui-panel">
+			<label class="ui-field">
+				<select id="basemapSelect">
+				</select>
+			</label>
 		</div>
 
     <script type="module" src="/src/main.js"></script>

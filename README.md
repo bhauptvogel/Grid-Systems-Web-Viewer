@@ -23,7 +23,12 @@ npx serve dist
 
 * `src/`
   * `grid/` – Grid system implementations and utility logic.
+  * `baselayers/` - Catalogue of rastered background maps.
+  * `events/` - Controllers for the map, coordinate/cell search and keyboard shortucts.
+  * `draw/` - Interaction for selection tools (e.g. line, polygon, circle).
   * `state/` – Centralized app state management (e.g. selected cells, current grid system).
   * `ui/` – User interface components like cell selection, grid system selection, and cell id label.
   * `styles/` – CSS styles used across the app.
-  * `main.js` – Entry point that initializes the app and handles the grid rendering.
+  * `queryParams.js` - URL state synchronisation.
+  * `selectionHistory.js` - Undo / Redo stack for selected cells.
+  * `main.js` – Entry point that initializes the app.
