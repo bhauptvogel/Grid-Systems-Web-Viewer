@@ -59,7 +59,7 @@ export function drawGrid ({ map, gridSource }) {
   );
 
   if (features.length > MAX_FEATURES) {
-    showToast(`Too many grid cells (${features.length.toLocaleString()}) – reduce precision!`);
+    showToast(`Too many grid cells (${features.length.toLocaleString()} > ${MAX_FEATURES.toLocaleString()}) – reduce precision!`);
     return;
   }
 

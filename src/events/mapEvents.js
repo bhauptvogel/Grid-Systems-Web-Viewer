@@ -1,12 +1,23 @@
 import { toLonLat } from 'ol/proj.js';
 import Feature      from 'ol/Feature.js';
 import Polygon      from 'ol/geom/Polygon.js';
+import DragPan      from 'ol/interaction/DragPan.js';
 
 import { getState, setState, subscribe } from '../state/store.js';
 import { drawGrid, selectedStyle }       from '../grid/drawGrid.js';
 import { getGridSystem }                 from '../grid/index.js';
 
 export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
+	/* ────────────────────────────────────────────────────────────────
+     *  Right‑mouse button panning
+     * ──────────────────────────────────────────────────────────────── */
+	map.getViewport().addEventListener('contextmenu', (e) => e.preventDefault());
+
+	const rightDragPan = new DragPan({
+		condition: (evt) => evt.originalEvent?.button === 2,
+	});
+	map.addInteraction(rightDragPan);
+
 	/* ────────────────────────────────────────────────────────────────
    *  1.  Precision ↔︎ Zoom
    *      When zoom changes we might need a new precision (unless the user locked it in the UI)
@@ -32,7 +43,17 @@ export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
     drawGrid({ map, gridSource });
   });
 
-  /* 2. Grid system changed → repaint grid & selection */
+	/* 2. Lock flag changed → redraw grid */
+  let prevLocked = getState().precisionLocked;
+  subscribe((state) => {
+    if (state.precisionLocked === prevLocked) return;
+    prevLocked = state.precisionLocked;
+
+    if (!state.precisionLocked) updatePrecision();
+    drawGrid({ map, gridSource });
+  });
+
+  /* 3. Grid system changed → redraw grid & selection */
   let prevGrid = getState().activeGridSystem;
   subscribe((state) => {
     if (state.activeGridSystem === prevGrid) return;
@@ -49,7 +70,7 @@ export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
     renderSelected();
   });
 
-  /* 3. Selected‑cells array changed → redraw highlights */
+  /* 4. Selected‑cells array changed → redraw highlights */
   subscribe(renderSelected);
   function renderSelected () {
     const { selectedCells, activeGridSystem } = getState();
