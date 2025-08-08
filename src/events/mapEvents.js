@@ -1,10 +1,8 @@
 import { toLonLat } from 'ol/proj.js';
-import Feature      from 'ol/Feature.js';
-import Polygon      from 'ol/geom/Polygon.js';
 import DragPan      from 'ol/interaction/DragPan.js';
 
 import { getState, setState, subscribe } from '../state/store.js';
-import { drawGrid, selectedStyle }       from '../grid/drawGrid.js';
+import { drawGrid }       from '../grid/drawGrid.js';
 import { getGridSystem }                 from '../grid/index.js';
 
 export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
@@ -65,24 +63,10 @@ export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
                      .mapToPrecision(view.getZoom());
       if (next !== state.precision) setState({ precision: next });
     }
-
+		
     drawGrid({ map, gridSource });
-    renderSelected();
+		setState({ selectedCells: [] });
   });
-
-  /* 4. Selected‑cells array changed → redraw highlights */
-  subscribe(renderSelected);
-  function renderSelected () {
-    const { selectedCells, activeGridSystem } = getState();
-
-    selectedSource.clear();
-    const features = selectedCells.map((id) =>
-      new Feature(new Polygon(getGridSystem(activeGridSystem).decode(id))),
-    );
-
-    features.forEach((f) => f.setStyle(selectedStyle));
-    selectedSource.addFeatures(features);
-  }
 
   /* ────────────────────────────────────────────────────────────────
    *  3.  Map events (map → state)
@@ -137,6 +121,5 @@ export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
    * ──────────────────────────────────────────────────────────────── */
   updatePrecision();
   drawGrid({ map, gridSource });
-  renderSelected();
 }
 

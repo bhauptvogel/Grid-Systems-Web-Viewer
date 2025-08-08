@@ -1,7 +1,7 @@
 import { toLonLat } from 'ol/proj.js';
 import Polygon      from 'ol/geom/Polygon.js';
 import Feature      from 'ol/Feature.js';
-import { Fill, Stroke, Style } from 'ol/style.js';
+import { Stroke, Style } from 'ol/style.js';
 
 import { getState }       from '../state/store.js';
 import { showToast }      from '../ui/toast.js';
@@ -9,10 +9,6 @@ import { getGridSystem }  from './index.js';
 
 /* styles ------------------------------------------------------- */
 const tileStyle = new Style({ stroke: new Stroke({ color: 'red', width: 2 }) });
-export const selectedStyle = new Style({
-  fill  : new Fill({ color: 'rgba(255,0,0,0.30)' }),
-  stroke: new Stroke({ color: 'rgba(255,0,0,1)', width: 2 }),
-});
 
 /* helpers ------------------------------------------------------------- */
 const EPS = 1e-9;

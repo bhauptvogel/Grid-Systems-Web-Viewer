@@ -11,6 +11,7 @@ import { createBaseLayers, watchBaseLayer } from './baselayers/index.js';
 
 import { gridRegistry } from './grid/index.js';
 import { drawGrid } from './grid/drawGrid.js';
+import { drawSelected, registerSelectedRenderer } from './grid/drawSelected.js';
 
 import { drawTools } from './drawTools.js';
 
@@ -65,7 +66,11 @@ function boot() {
   /* 7 — initial grid rendering */
   drawGrid({ map, gridSource });
 
-	/* 8 — event wiring */
+	/* 8 - initailizing renderer for selected tiles */
+	registerSelectedRenderer({ selectedSource });
+	drawSelected({ selectedSource });
+
+	/* 9 — event wiring */
   registerMapEvents({ map, view, gridSource, selectedSource });
 	registerSearchEvents({ map, view });
   registerKeyboardShortcuts({ map });
