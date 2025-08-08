@@ -51,7 +51,7 @@ const SEARCH_INPUT_ID = 'toolbarSearchInput';
 bind('btnSearch', () => {
 
 	const input = document.getElementById(SEARCH_INPUT_ID);
-  if (!input) return;            // should never happen
+  if (!input) return;
 
   input.classList.toggle('hidden');
   if (!input.classList.contains('hidden')) {
@@ -99,7 +99,7 @@ bind('btnUpload', () => {
   picker.onchange = () => {
     picker.files?.[0]?.text().then(text => {
       drawTools.importGeoJSON(text);
-      updateResetButton(); // <- added here
+      updateResetButton();
     });
   };
   picker.click();

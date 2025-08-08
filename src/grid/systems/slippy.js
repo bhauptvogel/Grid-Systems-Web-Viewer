@@ -62,7 +62,7 @@ export class SlippyTilesGrid {
 	encode(precision, lat, lon) {
 		const MAX_LAT = 85.05112878;
 
-		// Guardrails & input validation — don't silently wrap bad values.
+		// Guardrails & input validation
 		if (!Number.isFinite(lat) || !Number.isFinite(lon))
 			throw new TypeError('lat and lon must be finite numbers');
 		if (!Number.isInteger(precision) || precision < 0)
@@ -72,10 +72,10 @@ export class SlippyTilesGrid {
 		lat = Math.max(Math.min(lat, MAX_LAT), -MAX_LAT);
 
 		// Convert
-		const n = 2 ** precision;                    // tiles per axis at this zoom
+		const n = 2 ** precision;
 		const x = Math.floor((lon + 180) / 360 * n);
 
-		const latRad = lat * Math.PI / 180;     // degrees → radians
+		const latRad = lat * Math.PI / 180;
 		const y = Math.floor(
 			(1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n
 		);

@@ -24,7 +24,6 @@ export class GeohashGrid {
     const candidates = geohash.bboxes(minLat, minLon, maxLat, maxLon, precision);
 
     // Helper function: Ray-casting algorithm for point-in-polygon test
-		// TODO: write this in utils
     function pointInPolygon(lon, lat, poly) {
       let inside = false;
       // If polygon is closed (first point == last point), ignore the duplicate last vertex
@@ -61,11 +60,11 @@ export class GeohashGrid {
 		if(!(/^[0-9bcdefghjkmnpqrstuvwxyz]{1,12}$/.test(id))) throw new Error(`ID ${id} does not match a geohash!`);
 		const bbox = geohash.decode_bbox(id);
 		return [[
-				fromLonLat([bbox[1], bbox[0]]), // bottom-left
-				fromLonLat([bbox[3], bbox[0]]), // top-left
-				fromLonLat([bbox[3], bbox[2]]), // top-right
-				fromLonLat([bbox[1], bbox[2]]), // bottom-right
-				fromLonLat([bbox[1], bbox[0]]), // close the loop
+				fromLonLat([bbox[1], bbox[0]]),
+				fromLonLat([bbox[3], bbox[0]]),
+				fromLonLat([bbox[3], bbox[2]]),
+				fromLonLat([bbox[1], bbox[2]]),
+				fromLonLat([bbox[1], bbox[0]]),
 			]];
 	}
 }

@@ -1,19 +1,17 @@
 import {SlippyTilesGrid} from "./slippy.js";
 
 function slippyToQuadKey(z,x,y) {
-		// WARNING: function AI-generated
 		let quadKey = '';
 		for (let i = z; i > 0; i--) {
 			const mask = 1 << (i - 1);
 			let digit = 0;
-			if (x & mask) digit += 1;      //   +1 if the x-bit is set
-			if (y & mask) digit += 2;      //   +2 if the y-bit is set
-			quadKey += digit;              // digit is 0,1,2,3
+			if (x & mask) digit += 1;
+			if (y & mask) digit += 2;
+			quadKey += digit;
 		}
 		return quadKey;
 }
 
-// Bing Maps
 export class QuadTreeGrid extends SlippyTilesGrid {
 	polygonToCells(precision, polygon) {
 		const slippyCells = super.polygonToCells(precision, polygon);
@@ -29,12 +27,11 @@ export class QuadTreeGrid extends SlippyTilesGrid {
 		if(!(/^[0-3]{1,23}$/.test(id))) throw new Error(`ID ${id} does not match a QuadKey!`);
 
 		let x = 0, y = 0;
-		const z = id.length;  // each digit represents one zoom level
-
+		const z = id.length;
 		for (let i = 0; i < z; i++) {
-			const bit = z - i - 1;   // position of the bit we’re setting
+			const bit = z - i - 1;
 			const mask = 1 << bit;
-			const digit = id.charCodeAt(i) - 48; // '0' => 0, … '3' => 3
+			const digit = id.charCodeAt(i) - 48;
 
 			if (digit < 0 || digit > 3) {
 				throw new RangeError('QuadKey may contain only digits 0–3.');

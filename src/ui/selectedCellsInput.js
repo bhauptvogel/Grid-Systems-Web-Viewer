@@ -1,31 +1,28 @@
 import { getState, setState, subscribe } from '../state/store.js';
 import { undo, redo, canUndo, canRedo } from '../selectionHistory.js';
 
-const input = document.getElementById('cellInput');   // <textarea id="cellInput">
+const input = document.getElementById('cellInput');
 
 /* ---------- helpers ---------- */
 const listToString = arr => arr.join(',');
 
-/**
- * Convert raw text → unique, case-insensitive array, after
- * translating "." and ";" to ",".
- */
+// Convert raw text → unique, case-insensitive array, after translating "." and ";" to ","
 const stringToList = str => {
   const cleaned = str.replace(/[.;]/g, ',');
   const seen = new Set();
   cleaned.split(/[,\s]+/).forEach(tok => {
     if (!tok) return;
     const key = tok.toLowerCase();
-    if (!seen.has(key)) seen.add(tok);   // keep first-seen spelling
+    if (!seen.has(key)) seen.add(tok);
   });
   return Array.from(seen);
 };
 
 /* ---------- textarea auto-grow / scroll ---------- */
-const MAX_PX = parseFloat(getComputedStyle(input).maxHeight) || 128;  // fallback 128px
+const MAX_PX = parseFloat(getComputedStyle(input).maxHeight) || 128;
 
 function autoResize() {
-  input.style.height = 'auto';                       // shrink first
+  input.style.height = 'auto';
   const h = Math.min(input.scrollHeight, MAX_PX);
   input.style.height = h + 'px';
   input.style.overflowY = input.scrollHeight > MAX_PX ? 'auto' : 'hidden';
@@ -52,7 +49,7 @@ input.addEventListener('input', () => {
 
 /* ---------- pull changes ← store ---------- */
 subscribe(state => {
-  if (selfEcho) {            // ignore echo of our own keystroke
+  if (selfEcho) {
     selfEcho = false;
     return;
   }
@@ -96,7 +93,7 @@ if (btnReset) {
     setState({ selectedCells: [] });
 
     // Give feedback
-    btnReset.style.width = fixedWidth;  // lock width
+    btnReset.style.width = fixedWidth;
     btnReset.style.color = 'red';
     btnReset.textContent = 'Reset!';
 
@@ -104,7 +101,7 @@ if (btnReset) {
     setTimeout(() => {
       btnReset.style.color = '';
       btnReset.textContent = originalLabel;
-      btnReset.style.width = '';        // unlock width
+      btnReset.style.width = '';
     }, 2000);
   });
 }
@@ -121,17 +118,17 @@ if (btnCopy) {
 
   btnCopy.addEventListener('click', () => {
     const text = input.value.trim();
-    if (!text) return;                   // nothing to copy
+    if (!text) return;
 
     const showCopied = () => {
-      btnCopy.style.width = fixedWidth;  // lock width
+      btnCopy.style.width = fixedWidth;
       btnCopy.style.color = 'green';
       btnCopy.textContent = 'Copied!';
       // Optional: reset after 2 s to allow repeated use
       setTimeout(() => {
         btnCopy.style.color = '';
         btnCopy.textContent = originalLabel;
-        btnCopy.style.width = '';        // unlock width again
+        btnCopy.style.width = '';
       }, 2000);
     };
 

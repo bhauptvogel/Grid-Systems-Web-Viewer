@@ -16,7 +16,7 @@ const apply  = cells => setState({ selectedCells: cells });
 
 // ── global store subscription ─────────────────────────────────────────────
 subscribe(state => {
-  if (blockHistory) {               // skip changes triggered by undo/redo
+  if (blockHistory) {
     lastCells = [...state.selectedCells];
     return;
   }
@@ -25,7 +25,7 @@ subscribe(state => {
     // record *previous* state
     undoStack.push([...lastCells]);
     if (undoStack.length > MAX_HISTORY) undoStack.shift();
-    redoStack.length = 0;           // any new action kills future redos
+    redoStack.length = 0;
     lastCells = [...state.selectedCells];
     notify();
   }

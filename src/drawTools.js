@@ -33,7 +33,6 @@ const drawLayer    = new VectorLayer({
   style : new Style({
 		stroke: new Stroke({ width: 2, color: "blue" }),
 		fill  : new Fill({ color: 'rgba(0, 0, 255, 0.2)' }),
-    //fill  : new Fill({ opacity: 0.2, color: "blue" }),
     image : new CircleStyle({ radius: 5 }),
   }),
 });

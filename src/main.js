@@ -47,7 +47,7 @@ function boot() {
   const gridSource      = new VectorSource({ wrapX: true });
   const selectedSource  = new VectorSource({ wrapX: true });
 
-  /* 5 — map */
+  /* 5 — create map */
   const map = new Map({
     target : 'map',
     layers : [
@@ -62,7 +62,7 @@ function boot() {
   /* 6 — draw tools */
 	drawTools.init({ map, grids: gridRegistry });
 
-  /* 7 — initial grid paint */
+  /* 7 — initial grid rendering */
   drawGrid({ map, gridSource });
 
 	/* 8 — event wiring */

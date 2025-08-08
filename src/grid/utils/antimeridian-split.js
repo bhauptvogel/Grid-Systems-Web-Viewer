@@ -1,7 +1,7 @@
 // antimeridian-split.js
 // --------------------------------------------------------------
 //  Pure-JS utilities to (a) detect >180° width, (b) split the
-//  ring in two at the mid-longitude        © 2025 MIT Licence
+//  ring in two at the mid-longitude
 //
 
 /* ---------- helpers --------------------------------------------------- */
