@@ -71,10 +71,8 @@ export function registerGridRenderer({ map, view, gridSource }) {
     if (next !== state.precision) setState({ precision: next });
   };
 
-  // Initial precision
+  // Initial precision & render
   updatePrecisionFromZoom(getState());
-
-  // Initial render
   drawGrid({ map, gridSource });
 
   // React to store changes

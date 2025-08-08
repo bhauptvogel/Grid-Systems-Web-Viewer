@@ -1,18 +1,28 @@
 import { toLonLat } from 'ol/proj.js';
 import DragPan      from 'ol/interaction/DragPan.js';
+import DoubleClickZoom from 'ol/interaction/DoubleClickZoom.js';
 
 import { getState, setState } from '../state/store.js';
 import { getGridSystem }                 from '../grid/index.js';
 
 export function registerMapEvents ({ map, view }) {
-	/* Right‑mouse button panning */
+	// Disable double-click zoom
+  map.getInteractions().forEach((interaction) => {
+    if (interaction instanceof DoubleClickZoom) {
+      map.removeInteraction(interaction);
+    }
+  });
+
+	// Activate right‑mouse button panning
 	map.getViewport().addEventListener('contextmenu', (e) => e.preventDefault());
 	const rightDragPan = new DragPan({
 		condition: (evt) => evt.originalEvent?.button === 2,
 	});
 	map.addInteraction(rightDragPan);
 
-	//view.on('change:resolution', persistView);
+	// IF WISHED: DEACTIVATE LEFT-MOUSE PANNING HERE
+
+	// Map Move / Zoom - redraw grid
   map.on('moveend', () => setState({ mapCenter: view.getCenter(), mapZoom: view.getZoom() }));
 
 	// Hover – expose the cell under the cursor
