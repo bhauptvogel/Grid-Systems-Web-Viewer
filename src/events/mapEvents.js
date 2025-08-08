@@ -1,94 +1,21 @@
 import { toLonLat } from 'ol/proj.js';
 import DragPan      from 'ol/interaction/DragPan.js';
 
-import { getState, setState, subscribe } from '../state/store.js';
-import { drawGrid }       from '../grid/drawGrid.js';
+import { getState, setState } from '../state/store.js';
 import { getGridSystem }                 from '../grid/index.js';
 
-export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
-	/* ────────────────────────────────────────────────────────────────
-     *  Right‑mouse button panning
-     * ──────────────────────────────────────────────────────────────── */
+export function registerMapEvents ({ map, view }) {
+	/* Right‑mouse button panning */
 	map.getViewport().addEventListener('contextmenu', (e) => e.preventDefault());
-
 	const rightDragPan = new DragPan({
 		condition: (evt) => evt.originalEvent?.button === 2,
 	});
 	map.addInteraction(rightDragPan);
 
-	/* ────────────────────────────────────────────────────────────────
-   *  1.  Precision ↔︎ Zoom
-   *      When zoom changes we might need a new precision (unless the user locked it in the UI)
-   * ──────────────────────────────────────────────────────────────── */
-  const updatePrecision = () => {
-    const state = getState();
-    if (state.precisionLocked) return;
+	//view.on('change:resolution', persistView);
+  map.on('moveend', () => setState({ mapCenter: view.getCenter(), mapZoom: view.getZoom() }));
 
-    const next = getGridSystem(state.activeGridSystem)
-                   .mapToPrecision(view.getZoom());
-    if (next !== state.precision) setState({ precision: next });
-  };
-
-  /* ────────────────────────────────────────────────────────────────
-   *  2.  React to state changes (store → map)
-   * ──────────────────────────────────────────────────────────────── */
-
-	/* 1. Precision changed → redraw grid */
-  let prevPrecision = getState().precision;
-  subscribe((state) => {
-    if (state.precision === prevPrecision) return;
-    prevPrecision = state.precision;
-    drawGrid({ map, gridSource });
-  });
-
-	/* 2. Lock flag changed → redraw grid */
-  let prevLocked = getState().precisionLocked;
-  subscribe((state) => {
-    if (state.precisionLocked === prevLocked) return;
-    prevLocked = state.precisionLocked;
-
-    if (!state.precisionLocked) updatePrecision();
-    drawGrid({ map, gridSource });
-  });
-
-  /* 3. Grid system changed → redraw grid & selection */
-  let prevGrid = getState().activeGridSystem;
-  subscribe((state) => {
-    if (state.activeGridSystem === prevGrid) return;
-    prevGrid = state.activeGridSystem;
-
-    // compute default precision for the new grid (if unlocked)
-    if (!state.precisionLocked) {
-      const next = getGridSystem(state.activeGridSystem)
-                     .mapToPrecision(view.getZoom());
-      if (next !== state.precision) setState({ precision: next });
-    }
-		
-    drawGrid({ map, gridSource });
-		setState({ selectedCells: [] });
-  });
-
-  /* ────────────────────────────────────────────────────────────────
-   *  3.  Map events (map → state)
-   * ──────────────────────────────────────────────────────────────── */
-
-  /** Persist view on every move / zoom and adjust precision. */
-  const persistView = () =>
-    setState({ mapCenter: view.getCenter(), mapZoom: view.getZoom() });
-
-  view.on('change:resolution', () => {
-    drawGrid({ map, gridSource });
-    persistView();
-    updatePrecision();
-  });
-
-  map.on('moveend', () => {
-    drawGrid({ map, gridSource });
-    persistView();
-    updatePrecision();
-  });
-
-  /** Hover – expose the cell under the cursor (for UI highlights/tooltips). */
+	// Hover – expose the cell under the cursor
   let lastHover = null;
   map.on('pointermove', (evt) => {
     const { precision, activeGridSystem } = getState();
@@ -101,7 +28,7 @@ export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
     }
   });
 
-  /** Click – toggle selection on the clicked cell. */
+	// Click – toggle selection
   map.on('click', (evt) => {
     const state = getState();
     if (state.isDrawing) return;
@@ -116,10 +43,5 @@ export function registerMapEvents ({ map, view, gridSource, selectedSource }) {
     });
   });
 
-  /* ────────────────────────────────────────────────────────────────
-   *  4.  Initial paint / sync
-   * ──────────────────────────────────────────────────────────────── */
-  updatePrecision();
-  drawGrid({ map, gridSource });
 }
 

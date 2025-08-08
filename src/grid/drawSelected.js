@@ -11,7 +11,7 @@ const selectedStyle = new Style({
 });
 
 // Render all currently selected cells to the given vector source.
-export function drawSelected ({ selectedSource }) {
+function drawSelected ({ selectedSource }) {
   const { selectedCells, activeGridSystem } = getState();
 
   selectedSource.clear();

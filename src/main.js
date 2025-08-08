@@ -10,8 +10,8 @@ import { getState, subscribe } from './state/store.js';
 import { createBaseLayers, watchBaseLayer } from './baselayers/index.js';
 
 import { gridRegistry } from './grid/index.js';
-import { drawGrid } from './grid/drawGrid.js';
-import { drawSelected, registerSelectedRenderer } from './grid/drawSelected.js';
+import { registerGridRenderer } from './grid/drawGrid.js';
+import { registerSelectedRenderer } from './grid/drawSelected.js';
 
 import { drawTools } from './drawTools.js';
 
@@ -63,12 +63,11 @@ function boot() {
   /* 6 — draw tools */
 	drawTools.init({ map, grids: gridRegistry });
 
-  /* 7 — initial grid rendering */
-  drawGrid({ map, gridSource });
+  /* 7 — initialize grid renderer */
+	registerGridRenderer({ map, view, gridSource });
 
-	/* 8 - initailizing renderer for selected tiles */
+	/* 8 - initailize renderer for selected tiles */
 	registerSelectedRenderer({ selectedSource });
-	drawSelected({ selectedSource });
 
 	/* 9 — event wiring */
   registerMapEvents({ map, view, gridSource, selectedSource });
