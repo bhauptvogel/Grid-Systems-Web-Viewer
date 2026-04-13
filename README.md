@@ -4,11 +4,11 @@
 
 <img src="./public/screenshot.png" alt="Grid Visualizer Screenshot" width="600">
 
-A lightweight web application to visualize grid systems (e.g. H3, Geohash, Slippy tiles) on an interactive map using vanilla JavaScript and OpenLayers.
+A very light web application to visualize grid systems (e.g. H3, Geohash, Slippy tiles) on an interactive world map. Simple vanilla JS with OpenLayers.
 
 </div>
 
-## 🚀 Setup
+## Setup
 
 ```bash
 # Install dependencies
@@ -18,14 +18,14 @@ npm install
 npm run dev
 ````
 
-## 📦 Build and run
+## Build and run
 
 ```bash
 npm run build
 npx serve dist
 ```
 
-## 📁 Project Structure (Top-Level)
+## Project Structure (Top-Level)
 
 * `src/`
   * `grid/` – Grid system implementations and utility logic.
@@ -39,7 +39,7 @@ npx serve dist
   * `selectionHistory.js` - Undo / Redo stack for selected cells.
   * `main.js` – Entry point that initializes the app.
 
-## 🗺️ Adding a new background rasterization
+## Adding a new background rasterization
 
 1. Open `src/baselayers/registry.js` and add an entry:
 ``` js
@@ -54,7 +54,7 @@ export const BASEMAP_CATALOG = {
 };
 ```
 
-## 🌐 Adding a new grid system
+## Adding a new grid system
 
 1. Create the implementation by adding `src/grid/systems/mygrid.js` and implement the following methods (*mandatory*):
     * `mapToPrecision(view)` - Return an int describing the precision that should be used for the current map view.
