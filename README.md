@@ -1,6 +1,12 @@
+<div align="center">
+
 # Grid Visualizer
 
+<img src="./public/screenshot.png" alt="Grid Visualizer Screenshot" width="600">
+
 A lightweight web application to visualize grid systems (e.g. H3, Geohash, Slippy tiles) on an interactive map using vanilla JavaScript and OpenLayers.
+
+</div>
 
 ## 🚀 Setup
 

@@ -2,7 +2,64 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Grid Systems</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Meta Tags -->
+    <title>Grid Systems Web Viewer - Visualize H3, Geohash & Slippy Tiles</title>
+    <meta name="description" content="A lightweight web application to visualize grid systems like H3, Geohash, and Slippy tiles on an interactive map using vanilla JavaScript and OpenLayers." />
+    <meta name="keywords" content="Grid Systems, H3, Geohash, Slippy Tiles, OpenLayers, Web Map, Spatial Indexing, Geospatial, Visualization" />
+    <meta name="author" content="Ben Hauptvogel" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://gridsystems.online/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gridsystems.online/" />
+    <meta property="og:title" content="Grid Systems Web Viewer - Visualize Geographic Grids" />
+    <meta property="og:description" content="A lightweight web application to visualize grid systems like H3, Geohash, and Slippy tiles on an interactive map." />
+    <meta property="og:image" content="https://gridsystems.online/screenshot.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Grid Systems Web Viewer" />
+    <meta name="twitter:description" content="A lightweight web application to visualize grid systems like H3, Geohash, and Slippy tiles on an interactive map." />
+
+    <!-- AEO / Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Grid Systems Web Viewer",
+      "description": "Interactive web tool for visualizing spatial grid systems including H3, Geohash, and Slippy tiles.",
+      "applicationCategory": "GeospatialTool",
+      "operatingSystem": "All"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Grid Systems Web Viewer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is a lightweight web application designed to visualize various geographic grid systems such as H3, Geohash, and Slippy tiles on an interactive map."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which grid systems are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The viewer currently supports visualization of H3, Geohash, Quadtree and Slippy tiles. It also supports custom user-defined grid systems and basemaps."
+          }
+        }
+      ]
+    }
+    </script>
+
 		<link rel="icon" href="/favicon.png" />
 		<link rel="stylesheet" href="./src/styles/ui.css" />
 		<style>
@@ -25,44 +82,66 @@
 				left: auto;
 				top: auto;
 			}
+			.seo-hidden {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border: 0;
+			}
 		</style>
   </head>
   <body>
+		<!-- ─── SEO AEO CONTENT ─── -->
+		<header>
+			<h1 class="seo-hidden">Grid Systems Web Viewer - Visualize H3, Geohash & Slippy Tiles</h1>
+		</header>
+		<noscript>
+			<div style="padding: 20px; font-family: sans-serif; background: #fff; z-index: 9999; position: relative;">
+				<h2>JavaScript is Required</h2>
+				<p>The Grid Systems Web Viewer is an interactive web map that visualizes spatial grid systems including Uber's H3, Geohashes, and Slippy tiles. Please enable JavaScript to use the interactive open source OpenLayers map, select grid cells, and draw shapes.</p>
+			</div>
+		</noscript>
+
 		<!-- ─── MAP ─── -->
     <div id="map" style="width: 100vw; height: 100vh;"></div>
 
 		<!-- ─── TOOL BUTTONS ─── -->
 		<div id="panel-tools" class="ui-panel">
 			<div class="toolbar">
-			<button id="btnSearch"  title="Search"   class="ui-button icon">
+			<button id="btnSearch"  title="Search" aria-label="Search coordinates or tile ID" class="ui-button icon">
 				<svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" />
 				</svg>
 			</button>
-			<button id="btnLine"    title="Draw line"   class="ui-button icon">
+			<button id="btnLine"    title="Draw line" aria-label="Draw line" class="ui-button icon">
                 <svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M18 5C17.4477 5 17 5.44772 17 6C17 6.27642 17.1108 6.52505 17.2929 6.70711C17.475 6.88917 17.7236 7 18 7C18.5523 7 19 6.55228 19 6C19 5.44772 18.5523 5 18 5ZM15 6C15 4.34315 16.3431 3 18 3C19.6569 3 21 4.34315 21 6C21 7.65685 19.6569 9 18 9C17.5372 9 17.0984 8.8948 16.7068 8.70744L8.70744 16.7068C8.8948 17.0984 9 17.5372 9 18C9 19.6569 7.65685 21 6 21C4.34315 21 3 19.6569 3 18C3 16.3431 4.34315 15 6 15C6.46278 15 6.90157 15.1052 7.29323 15.2926L15.2926 7.29323C15.1052 6.90157 15 6.46278 15 6ZM6 17C5.44772 17 5 17.4477 5 18C5 18.5523 5.44772 19 6 19C6.55228 19 7 18.5523 7 18C7 17.7236 6.88917 17.475 6.70711 17.2929C6.52505 17.1108 6.27642 17 6 17Z" fill="currentColor" />
                 </svg>
 			</button>
-			<button id="btnPoly"    title="Draw polygon" class="ui-button icon">
+			<button id="btnPoly"    title="Draw polygon" aria-label="Draw polygon" class="ui-button icon">
 				<svg class="icon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--gis" preserveAspectRatio="xMidYMid meet"><path d="M32.5 10.95c-6.89 0-12.55 5.66-12.55 12.55c0 4.02 1.935 7.613 4.91 9.916L14.815 54.172a12.354 12.354 0 0 0-2.316-.223C5.61 53.95-.05 59.61-.05 66.5c0 6.89 5.66 12.55 12.55 12.55c5.13 0 9.54-3.151 11.463-7.603l51.277 7.71c1.232 5.629 6.281 9.894 12.26 9.894c6.656 0 12.114-5.297 12.48-11.867a3.5 3.5 0 0 0 .07-.684a3.5 3.5 0 0 0-.071-.7c-.375-6.562-5.829-11.85-12.479-11.85c-.134 0-.264.015-.396.019L80.242 43.05c3.275-2.127 5.509-5.746 5.738-9.867a3.5 3.5 0 0 0 .07-.684a3.5 3.5 0 0 0-.071-.7c-.375-6.562-5.829-11.85-12.479-11.85c-5.062 0-9.452 3.06-11.43 7.415l-17.082-4.517a3.5 3.5 0 0 0-.01-.047c-.374-6.563-5.828-11.852-12.478-11.852zm0 7c3.107 0 5.55 2.443 5.55 5.55c0 3.107-2.443 5.55-5.55 5.55c-3.107 0-5.55-2.443-5.55-5.55c0-3.107 2.443-5.55 5.55-5.55zm41 9c3.107 0 5.55 2.443 5.55 5.55c0 3.107-2.443 5.55-5.55 5.55c-3.107 0-5.55-2.443-5.55-5.55c0-3.107 2.443-5.55 5.55-5.55zm-30.137 2.708l17.739 4.69C62.007 40.37 67.239 45.05 73.5 45.05l.033-.002l6.92 21.092a12.688 12.688 0 0 0-4.705 6.015l-50.916-7.654a12.611 12.611 0 0 0-3.787-7.13l10.342-21.378c.368.033.737.057 1.113.057c4.652 0 8.71-2.592 10.863-6.393zM12.5 60.95c3.107 0 5.55 2.444 5.55 5.551s-2.443 5.55-5.55 5.55c-3.107 0-5.55-2.443-5.55-5.55c0-3.107 2.443-5.55 5.55-5.55zm75 10c3.107 0 5.55 2.444 5.55 5.551s-2.443 5.55-5.55 5.55c-3.107 0-5.55-2.443-5.55-5.55c0-3.107 2.443-5.55 5.55-5.55z" fill="currentColor"></path></svg>
 			</button>
-			<button id="btnRect"    title="Draw rectangle" class="ui-button icon">
+			<button id="btnRect"    title="Draw rectangle" aria-label="Draw rectangle" class="ui-button icon">
 				<svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
-			<button id="btnCircle"  title="Draw circle" class="ui-button icon">
+			<button id="btnCircle"  title="Draw circle" aria-label="Draw circle" class="ui-button icon">
 				<svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
-			<button id="btnUpload"  title="Upload GeoJSON" class="ui-button icon">
+			<button id="btnUpload"  title="Upload GeoJSON" aria-label="Upload GeoJSON" class="ui-button icon">
 				<svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M17 17H17.01M15.6 14H18C18.9319 14 19.3978 14 19.7654 14.1522C20.2554 14.3552 20.6448 14.7446 20.8478 15.2346C21 15.6022 21 16.0681 21 17C21 17.9319 21 18.3978 20.8478 18.7654C20.6448 19.2554 20.2554 19.6448 19.7654 19.8478C19.3978 20 18.9319 20 18 20H6C5.06812 20 4.60218 20 4.23463 19.8478C3.74458 19.6448 3.35523 19.2554 3.15224 18.7654C3 18.3978 3 17.9319 3 17C3 16.0681 3 15.6022 3.15224 15.2346C3.35523 14.7446 3.74458 14.3552 4.23463 14.1522C4.60218 14 5.06812 14 6 14H8.4M12 15V4M12 4L15 7M12 4L9 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
-			<button id="btnReset"  title="Reset the Drawing" class="ui-button icon" disabled>
+			<button id="btnReset"  title="Reset the Drawing" aria-label="Reset the Drawing" class="ui-button icon" disabled>
 				<svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6M18 6V16.2C18 17.8802 18 18.7202 17.673 19.362C17.3854 19.9265 16.9265 20.3854 16.362 20.673C15.7202 21 14.8802 21 13.2 21H10.8C9.11984 21 8.27976 21 7.63803 20.673C7.07354 20.3854 6.6146 19.9265 6.32698 19.362C6 18.7202 6 17.8802 6 16.2V6M14 10V17M10 10V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
@@ -93,14 +172,14 @@
 
 			<!-- Row 2 – minus / value / plus (shown only when locked) -->
 			<div id="precisionRow" class="row2">
-				<button id="precisionMinus" class="ui-button icon">−</button>
+				<button id="precisionMinus" aria-label="Decrease grid precision level" class="ui-button icon">−</button>
 				<span id="precisionValue">0</span>
-				<button id="precisionPlus" class="ui-button icon">+</button>
+				<button id="precisionPlus" aria-label="Increase grid precision level" class="ui-button icon">+</button>
 			</div>
 
 			<!-- Row 3 – lock / unlock -->
 			<div class="row3">
-				<button id="precisionToggle" class="ui-button text">Lock</button>
+				<button id="precisionToggle" aria-label="Toggle precision grid lock" class="ui-button text">Lock</button>
 			</div>
 		</div>
 
@@ -118,18 +197,18 @@
 			
 			<!-- ─── BUTTON ROW ─── -->
 			<div class="ui-buttons" style="margin-top: 0.5rem;">
-				<button id="btnUndo" title="Undo (Ctrl+Z)" class="ui-button icon" disabled>
+				<button id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo selection" class="ui-button icon" disabled>
 					<svg style="margin: 5px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M20 7H9.00001C6.23858 7 4 9.23857 4 12C4 14.7614 6.23858 17 9 17H16M20 7L17 4M20 7L17 10" transform="scale(-1,1) translate(-24,0)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 					</svg>
 				</button>
-				<button id="btnRedo" title="Redo (Ctrl+Y)" class="ui-button icon" disabled>
+				<button id="btnRedo" title="Redo (Ctrl+Y)" aria-label="Redo selection" class="ui-button icon" disabled>
 					<svg style="margin: 5px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M20 7H9.00001C6.23858 7 4 9.23857 4 12C4 14.7614 6.23858 17 9 17H16M20 7L17 4M20 7L17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</button>
-				<button id="btnClear" class="ui-button text">Reset Selection</button>
-				<button id="btnCopy" class="ui-button text">Copy to Clipboard</button>
+				<button id="btnClear" aria-label="Clear all selections" class="ui-button text">Reset Selection</button>
+				<button id="btnCopy" aria-label="Copy selected cells to clipboard" class="ui-button text">Copy to Clipboard</button>
 				<!-- <button id="btnLoad">Load from file</button>
 				<button id="btnExport">Export</button> -->
 			</div>
